@@ -1,6 +1,10 @@
 package com.devotedmc.testbukkit;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.Arrays;
 
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.InitializationError;
@@ -17,15 +21,14 @@ public class TestBukkitRunner extends BlockJUnit4ClassRunner {
 	public TestBukkitRunner(Class<?> clazz) throws InitializationError {
 		super(clazz);
 
-
 		boolean useLogger = false;
 		boolean isIntegration = false;
-		//Class<? extends TestServer> serverInterface = null;
+		Class<? extends TestServer> serverInterface = TestServer.class;
 		TestOptions testOptions = clazz.getDeclaredAnnotation(TestOptions.class);
 		if (testOptions != null) {
 			useLogger = testOptions.useLogger();
 			isIntegration = testOptions.isIntegration();
-			//serverInterface = testOptions.server();
+			serverInterface = testOptions.server();
 		}
 		
 		// Modify JavaPlugin if this is an integration test
@@ -36,13 +39,21 @@ public class TestBukkitRunner extends BlockJUnit4ClassRunner {
 		TestServer server = TestBukkit.getServer();
 		if (server == null) {
 			try {
-				Class<?> serverClass = getClass().getClassLoader().loadClass("com.devotedmc.testbukkit.core.CoreTestServer");
-
-				if (serverClass.getSuperclass() != TestServer.class) {
+				ClassLoader loader = getClass().getClassLoader();
+				Class<?> coreClass = loader.loadClass("com.devotedmc.testbukkit.core.CoreTestServer");
+				if (!Arrays.asList(coreClass.getInterfaces()).contains(TestServer.class)) {
 					throw new Exception();
 				}
 
-				serverClass.getConstructor(boolean.class).newInstance(useLogger);
+				Constructor<?> constructor = coreClass.getConstructor(boolean.class);
+				constructor.setAccessible(true);
+				server = (TestServer)constructor.newInstance(useLogger);
+				
+				if (serverInterface != TestServer.class) {
+					TestServerProxy coreProxy = new TestServerProxy(server);
+					
+					server = (TestServer)Proxy.getProxyClass(loader, serverInterface).getConstructor(InvocationHandler.class).newInstance(coreProxy);
+				}
 			} catch (Exception ex) {
 				throw new InitializationError("Failed to create the TestServer instance");
 			}

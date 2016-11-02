@@ -1,6 +1,8 @@
 package com.devotedmc.testbukkit;
 
 import java.io.File;
+import java.util.Map;
+import java.util.Set;
 
 import org.bukkit.Server;
 import org.bukkit.World;
@@ -43,4 +45,8 @@ public interface TestServer extends Server {
     File getTestPluginFile(JavaPlugin plugin);
     
     File getTestPluginConfigFile(JavaPlugin plugin);
+    
+    void addMethodHandler(Class<?> clazz, TestMethodHandler handler);
+    
+    Set<TestMethodHandler> getMethodHandlers(Class<?> clazz);
 }

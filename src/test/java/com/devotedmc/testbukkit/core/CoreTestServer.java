@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -77,6 +78,7 @@ import com.devotedmc.testbukkit.TestCommandMap;
 import com.devotedmc.testbukkit.TestConsoleCommandSender;
 import com.devotedmc.testbukkit.TestFactory;
 import com.devotedmc.testbukkit.TestItemFactory;
+import com.devotedmc.testbukkit.TestMethodHandler;
 import com.devotedmc.testbukkit.TestPlayer;
 import com.devotedmc.testbukkit.TestPlugin;
 import com.devotedmc.testbukkit.TestPluginManager;
@@ -107,6 +109,7 @@ class CoreTestServer implements TestServer {
 	private Set<Recipe> recipes = new HashSet<Recipe>();
 	private PluginLoader pluginLoader = Mockito.mock(PluginLoader.class);
 	private CoreTestFactory testFactory = new CoreTestFactory();
+	private Map<Class<?>, Set<TestMethodHandler>> methodHandlers = new HashMap<Class<?>, Set<TestMethodHandler>>();
     private int maxPlayers = 50;
     private int viewDistance = 4;
     private boolean allowNether = true;
@@ -937,5 +940,21 @@ class CoreTestServer implements TestServer {
     @Override
     public TestFactory getTestFactory() {
     	return testFactory;
+    }
+
+    @Override
+    public void addMethodHandler(Class<?> clazz, TestMethodHandler handler) {
+    	Set<TestMethodHandler> handlers = methodHandlers.get(clazz);
+    	if (handlers == null) {
+    		handlers = new HashSet<TestMethodHandler>();
+    		methodHandlers.put(clazz, handlers);
+    	}
+    	if (!handlers.contains(handler)) {
+    		handlers.add(handler);
+    	}
+    }
+    
+    public Set<TestMethodHandler> getMethodHandlers(Class<?> clazz) {
+    	return methodHandlers.get(clazz);
     }
 }
