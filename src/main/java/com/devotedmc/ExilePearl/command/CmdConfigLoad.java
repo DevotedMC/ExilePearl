@@ -7,7 +7,6 @@ public class CmdConfigLoad extends PearlCommand {
 		super(pearlApi);
 		
 		this.senderMustBePlayer = false;
-		this.errorOnToManyArgs = false;
 		
 		this.aliases.add("load");
 		this.helpShort = "Reloads the plugin configuration";

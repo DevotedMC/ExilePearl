@@ -1,90 +1,34 @@
 package com.devotedmc.testbukkit;
 
-import static org.mockito.Mockito.*;
+import java.util.Queue;
 
-import java.util.UUID;
-import java.util.logging.Level;
-
-import org.bukkit.Location;
-import org.bukkit.Server;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.PlayerInventory;
 
-public abstract class TestPlayer implements Player {
-
-	public String name;
-	public UUID uid;
-	public Location location;
-	public boolean isOnline;
-	public PlayerInventory inventory;
+public interface TestPlayer extends Player {
 	
-	public static TestPlayer create(String name, UUID uid) {
-		TestPlayer player = mock(TestPlayer.class);
-		player.name = name;
-		player.uid = uid;
-		player.location = null;
-		player.isOnline = false;
-		player.inventory = mock(PlayerInventory.class);
-		
-		when(player.getName()).thenCallRealMethod();
-		when(player.getUniqueId()).thenCallRealMethod();
-		when(player.isOnline()).thenCallRealMethod();
-		when(player.toString()).thenCallRealMethod();
-		when(player.getServer()).thenCallRealMethod();
-		when(player.runCommand(any())).thenCallRealMethod();
-		when(player.goOnline()).thenCallRealMethod();
-		when(player.goOffline()).thenCallRealMethod();
-		when(player.getInventory()).thenReturn(player.inventory);
-		
-		return player;
-		
-	}
-
-	public static TestPlayer create(String name) {
-		return create(name, UUID.randomUUID());
-	}
+	/**
+	 * Connects the player to the server calling all relevant
+	 * Bukkit connection events.
+	 * @return true if the player connected, otherwise false
+	 */
+	public boolean connect();
 	
-	protected TestPlayer() { }
-
-	@Override
-	public String getName() {
-		return name;
-	}
 	
-	@Override
-	public UUID getUniqueId() {
-		return uid;
-	}
+	/**
+	 * Disconnects the player from the server if he is connected
+	 */
+	public void disconnect();
 	
-	@Override
-	public boolean isOnline() {
-		return isOnline;
-	}
+	/**
+	 * Runs a command from the player
+	 * @param commandLine The command
+	 * @return true if the command was executed
+	 */
+	boolean runCommand(String commandLine);
 	
-	@Override
-	public String toString() {
-		return String.format("TestPlayer{ name: %s, uid: %s }", name, uid.toString());
-	}
-	
-	@Override
-	public Server getServer() {
-		return TestBukkit.getServer();
-	}
-	
-	public boolean goOnline() {
-		TestBukkit.getServer().addPlayer(this);
-		isOnline = true;
-		return isOnline;
-	}
-	
-	public boolean goOffline() {
-		TestBukkit.getServer().getOnlinePlayers().remove(this);
-		isOnline = false;
-		return isOnline;
-	}
-	
-    public boolean runCommand(String commandLine) {
-    	getServer().getLogger().log(Level.INFO, String.format("Running player command '%s'", commandLine));
-    	return getServer().dispatchCommand(this, commandLine);
-    }
+	/**
+	 * Gets the messages sent to the player
+	 * @return The message queue
+	 */
+	Queue<String> getMessages();
 }

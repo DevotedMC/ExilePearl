@@ -24,7 +24,7 @@ public abstract class TestWorld implements World {
 	public WorldType worldType;
 	public File worldFolder;
 	
-	private HashMap<Location, Block> blocks;
+	private HashMap<Location, TestBlock> blocks;
 	public HashSet<TestChunk> loadedChunks;
 	
 	public static TestWorld create(String name, Environment env, WorldType type) {
@@ -33,7 +33,7 @@ public abstract class TestWorld implements World {
 		world.uid = UUID.randomUUID();
 		world.env = env;
 		world.worldType = type;
-		world.blocks = new HashMap<Location, Block>();
+		world.blocks = new HashMap<Location, TestBlock>();
 		world.loadedChunks = new HashSet<TestChunk>();
 		return world;
 	}
@@ -66,8 +66,8 @@ public abstract class TestWorld implements World {
 	}
 	
 	@Override
-	public Block getBlockAt(Location l) {
-		Block b = blocks.get(l);
+	public TestBlock getBlockAt(Location l) {
+		TestBlock b = blocks.get(l);
 		
 		if (b == null) {
             Material blockType = Material.AIR;
@@ -82,7 +82,7 @@ public abstract class TestWorld implements World {
 	}
 	
 	@Override
-	public Block getBlockAt(int x, int y, int z) {
+	public TestBlock getBlockAt(int x, int y, int z) {
 		return getBlockAt(new Location(this, x, y, z));
 	}
 	

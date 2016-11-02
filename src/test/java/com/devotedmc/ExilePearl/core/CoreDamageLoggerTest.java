@@ -1,9 +1,9 @@
 package com.devotedmc.ExilePearl.core;
 
+import static com.devotedmc.testbukkit.TestBukkit.*;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.*;
-import static com.devotedmc.testbukkit.TestBukkit.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -48,10 +48,10 @@ public class CoreDamageLoggerTest {
 	private Clock clock;
 	private CoreDamageLogger dut;
 	
-	private TestPlayer player = createOnlinePlayer("player");
-	private TestPlayer d1 = createOnlinePlayer("d1");
-	private TestPlayer d2 = createOnlinePlayer("d2");
-	private TestPlayer d3 = createOnlinePlayer("d3");
+	private TestPlayer player = createPlayer("player");
+	private TestPlayer d1 = createPlayer("d1");
+	private TestPlayer d2 = createPlayer("d2");
+	private TestPlayer d3 = createPlayer("d3");
 
 	@Before
 	public void setUp() throws Exception {
@@ -71,6 +71,11 @@ public class CoreDamageLoggerTest {
 		
 		dut = new CoreDamageLogger(pearlApi);
 		dut.loadConfig(config);
+		
+		player.connect();
+		d1.connect();
+		d2.connect();
+		d3.connect();
 	}
 	
 	@Test
@@ -316,7 +321,7 @@ public class CoreDamageLoggerTest {
 		assertEquals(d1, damagers.get(0));
 		
 		ExilePearl pearl = mock(ExilePearl.class);
-		when(pearl.getPlayerId()).thenReturn(player.uid);
+		when(pearl.getPlayerId()).thenReturn(player.getUniqueId());
 		
 		PlayerPearledEvent pearlEvent = new PlayerPearledEvent(pearl);
 		dut.onPlayerPearled(pearlEvent);

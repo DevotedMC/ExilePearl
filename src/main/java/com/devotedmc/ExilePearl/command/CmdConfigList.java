@@ -16,7 +16,6 @@ public class CmdConfigList extends PearlCommand {
 		config = plugin.getPearlConfig();
 		
 		this.senderMustBePlayer = false;
-		this.errorOnToManyArgs = false;
 		
 		this.aliases.add("list");
 		this.helpShort = "Lists the exile rule options";

@@ -15,7 +15,6 @@ public class CmdSuicide extends PearlCommand {
 		this.aliases.add("suicide");
 		
 		this.senderMustBePlayer = true;
-		this.errorOnToManyArgs = false;
 		this.visibility = CommandVisibility.INVISIBLE;
 	}
 

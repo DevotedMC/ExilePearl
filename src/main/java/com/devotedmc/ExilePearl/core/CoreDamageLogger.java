@@ -109,11 +109,11 @@ final class CoreDamageLogger extends ExilePearlTask implements DamageLogger {
 	}
 
 	@Override
-	public List<Player> getSortedDamagers(Player player) {
-		Guard.ArgumentNotNull(player, "player");
+	public List<Player> getSortedDamagers(UUID playerId) {
+		Guard.ArgumentNotNull(playerId, "playerId");
 		
 		final List<Player> players = new ArrayList<Player>();
-		final DamageLog log = damageLogs.get(player.getUniqueId());
+		final DamageLog log = damageLogs.get(playerId);
 		
 		if (log == null) {
 			return players;
@@ -138,6 +138,12 @@ final class CoreDamageLogger extends ExilePearlTask implements DamageLogger {
 		return players;
 	}
 	
+	
+	@Override
+	public List<Player> getSortedDamagers(Player player) {
+		Guard.ArgumentNotNull(player, "player");
+		return getSortedDamagers(player.getUniqueId());
+	}
 	
 
 	@Override

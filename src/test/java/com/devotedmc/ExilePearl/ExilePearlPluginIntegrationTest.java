@@ -1,8 +1,8 @@
 package com.devotedmc.ExilePearl;
 
+import static com.devotedmc.testbukkit.TestBukkit.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
-import static com.devotedmc.testbukkit.TestBukkit.*;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -22,7 +22,7 @@ import vg.civcraft.mc.civmodcore.util.TextUtil;
 
 @SuppressWarnings("unused")
 @RunWith(TestBukkitRunner.class)
-@TestOptions(useLogger = true, server = TestServer_v1_10_R1.class)
+@TestOptions(useLogger = true, server = TestServer_v1_10_R1.class, isIntegration = true)
 public class ExilePearlPluginIntegrationTest {
 	
 	private static TestServer server;
@@ -57,7 +57,8 @@ public class ExilePearlPluginIntegrationTest {
 	@Before
 	public void setUp() throws Exception {
 		server.getOnlinePlayers().clear();
-		player1 = createOnlinePlayer("player1");
+		player1 = createPlayer("player1");
+		player1.connect();
 	}
 
 	@Ignore

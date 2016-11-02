@@ -7,7 +7,6 @@ public class CmdConfigSave extends PearlCommand {
 		super(pearlApi);
 		
 		this.senderMustBePlayer = false;
-		this.errorOnToManyArgs = false;
 		
 		this.aliases.add("save");
 		this.helpShort = "Saves the plugin configuration";

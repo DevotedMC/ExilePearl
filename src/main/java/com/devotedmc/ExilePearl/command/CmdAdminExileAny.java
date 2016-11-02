@@ -71,6 +71,10 @@ public class CmdAdminExileAny extends PearlCommand {
 		}
 		
 		if (killerId == null) {
+			killerId = player().getUniqueId();
+		}
+		
+		if (killerId == null) {
 			msg(Lang.unknownPlayer);
 			return;
 		}

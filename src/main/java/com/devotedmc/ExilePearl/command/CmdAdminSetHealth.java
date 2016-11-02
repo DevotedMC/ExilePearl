@@ -41,7 +41,7 @@ public class CmdAdminSetHealth extends PearlCommand {
 			return;
 		}
 		
-		int percent = Math.min(100, Math.max(1, arg));
+		int percent = Math.min(100, Math.max(1, argAsInt(1)));
 		
 		// calculate the actual value
 		int healthValue = (int)(plugin.getPearlConfig().getPearlHealthMaxValue() * ((double)percent / 100));
