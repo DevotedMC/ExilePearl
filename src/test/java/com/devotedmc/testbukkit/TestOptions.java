@@ -34,4 +34,13 @@ public @interface TestOptions {
 	 * @return Gets the optional server interface
 	 */
 	Class<? extends TestServer> server() default TestServer.class;
+	
+	/**
+	 * Whether to use default stubbing for interface methods.
+	 * <p>
+	 * When this is true, undefined interface methods will return the default value.
+	 * When false, a NoSuchMethodException exception will be generated.
+	 * @return Whether to use default stubbing.
+	 */
+	boolean defaultStubbing() default true;
 }

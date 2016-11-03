@@ -1,8 +1,8 @@
 package com.devotedmc.testbukkit;
 
 import java.io.File;
-import java.util.Map;
-import java.util.Set;
+import java.lang.reflect.Method;
+import java.util.logging.Level;
 
 import org.bukkit.Server;
 import org.bukkit.World;
@@ -46,7 +46,22 @@ public interface TestServer extends Server {
     
     File getTestPluginConfigFile(JavaPlugin plugin);
     
-    void addMethodHandler(Class<?> clazz, TestMethodHandler handler);
+    void addProxyHandler(Class<?> clazz, TestMethodHandler handler);
     
-    Set<TestMethodHandler> getMethodHandlers(Class<?> clazz);
+    Object invokeProxy(Class<?> proxyClass, Object proxy, Method method, Object[] args) throws Throwable;
+    
+	/**
+	 * Logs a message
+	 * @param level The logging level
+	 * @param msg The message
+	 * @param args The message arguments
+	 */
+	void log(Level level, String msg, Object... args);
+	
+	/**
+	 * Logs a message
+	 * @param msg The message
+	 * @param args The message arguments
+	 */
+	void log(String msg, Object... args);
 }

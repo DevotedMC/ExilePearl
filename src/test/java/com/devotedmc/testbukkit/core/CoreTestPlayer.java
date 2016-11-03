@@ -3,7 +3,6 @@ package com.devotedmc.testbukkit.core;
 import static org.mockito.Mockito.*;
 
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.InetSocketAddress;
 import java.util.Queue;
@@ -21,35 +20,36 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result;
 import org.bukkit.inventory.PlayerInventory;
 
+import com.devotedmc.testbukkit.ProxyMethod;
 import com.devotedmc.testbukkit.TestBukkit;
 import com.devotedmc.testbukkit.TestPlayer;
+import com.devotedmc.testbukkit.TestServer;
 
-class CoreTestPlayer extends TestProxy {
+class CoreTestPlayer extends TestProxyBase {
 
-	private TestPlayer player;
-	private String name;
+	private final TestServer server;
+	private final TestPlayer player;
+	private final String name;
 	private UUID uid;
 	private Location location;
 	private PlayerInventory inventory;
 	private Queue<String> messages;
 	
-	private CoreTestPlayer(String name, UUID uid) {
+	private CoreTestPlayer(String name, UUID uid) throws Exception {
 		super(Player.class);
 		this.name = name;
 		this.uid = uid;
-		
-		
-		location = null;
+		this.server = TestBukkit.getServer();
+		location = server.getWorld("world").getSpawnLocation();
 		inventory = mock(PlayerInventory.class);
 		messages = new LinkedBlockingQueue<String>();
+		player = createProxyInstance(TestPlayer.class);
 	}
 	
 	public static TestPlayer createInstance(String name, UUID uid) {
 		try {			
-			CoreTestPlayer corePlayer = new CoreTestPlayer(name, uid);
-			TestPlayer player = (TestPlayer)Proxy.getProxyClass(CoreTestPlayer.class.getClassLoader(), TestPlayer.class).getConstructor(InvocationHandler.class).newInstance(corePlayer);
-			corePlayer.player = player;
-			return player;
+			CoreTestPlayer player = new CoreTestPlayer(name, uid);
+			return player.player;
 		} catch(Exception ex) {
             throw new Error(ex);
 		}
@@ -57,29 +57,19 @@ class CoreTestPlayer extends TestProxy {
 
 	public static TestPlayer createInstance(String name) {
 		return createInstance(name, UUID.randomUUID());
-	}
-	
-	@Override
-    public Object invokeImpl(Object proxy, Method method, Object[] args) throws Exception {
-		try {
-			return this.getClass().getMethod(method.getName(), method.getParameterTypes()).invoke(this, args);
-		} catch(NoSuchMethodException ex) {
-			if (method.getReturnType().isPrimitive()) {
-				return DefaultValues.defaultValueFor(method.getReturnType());
-			}
-			return null;
-		}
-    }
-	
+	}	
 
+	@ProxyMethod(Player.class)
 	public String getName() {
 		return name;
 	}
-	
+
+	@ProxyMethod(Player.class)
 	public UUID getUniqueId() {
 		return uid;
 	}
-	
+
+	@ProxyMethod(Player.class)
 	public boolean isOnline() {
 		return TestBukkit.getServer().getOnlinePlayers().contains(this);
 	}
@@ -114,7 +104,8 @@ class CoreTestPlayer extends TestProxy {
     	final PlayerJoinEvent joinEvent = new PlayerJoinEvent(player, "");
     	TestBukkit.getPluginManager().callEvent(joinEvent);
 		
-		TestBukkit.getServer().addPlayer(player);
+    	server.log("%s logged in with UUID=%s at %s", player.getName(), player.getUniqueId().toString(), player.getLocation().toString());
+		server.addPlayer(player);
 		return true;
 	}
 
@@ -123,6 +114,7 @@ class CoreTestPlayer extends TestProxy {
 		
 		final PlayerQuitEvent quitEvent = new PlayerQuitEvent(player, "");
     	TestBukkit.getPluginManager().callEvent(quitEvent);
+    	server.log("%s left the game", player.getName());
 	}
 	
     public boolean runCommand(String commandLine) {

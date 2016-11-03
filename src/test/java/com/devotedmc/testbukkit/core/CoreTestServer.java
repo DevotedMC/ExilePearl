@@ -4,6 +4,7 @@ import static org.mockito.Mockito.*;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -109,7 +111,7 @@ class CoreTestServer implements TestServer {
 	private Set<Recipe> recipes = new HashSet<Recipe>();
 	private PluginLoader pluginLoader = Mockito.mock(PluginLoader.class);
 	private CoreTestFactory testFactory = new CoreTestFactory();
-	private Map<Class<?>, Set<TestMethodHandler>> methodHandlers = new HashMap<Class<?>, Set<TestMethodHandler>>();
+	private Map<Class<?>, List<TestMethodHandler>> proxyHandlers = new HashMap<Class<?>, List<TestMethodHandler>>();
     private int maxPlayers = 50;
     private int viewDistance = 4;
     private boolean allowNether = true;
@@ -943,18 +945,45 @@ class CoreTestServer implements TestServer {
     }
 
     @Override
-    public void addMethodHandler(Class<?> clazz, TestMethodHandler handler) {
-    	Set<TestMethodHandler> handlers = methodHandlers.get(clazz);
+    public void addProxyHandler(Class<?> clazz, TestMethodHandler handler) {
+    	List<TestMethodHandler> handlers = proxyHandlers.get(clazz);
     	if (handlers == null) {
-    		handlers = new HashSet<TestMethodHandler>();
-    		methodHandlers.put(clazz, handlers);
+    		handlers = new ArrayList<TestMethodHandler>();
+    		proxyHandlers.put(clazz, handlers);
     	}
     	if (!handlers.contains(handler)) {
     		handlers.add(handler);
     	}
     }
-    
-    public Set<TestMethodHandler> getMethodHandlers(Class<?> clazz) {
-    	return methodHandlers.get(clazz);
+
+    @Override
+    public Object invokeProxy(Class<?> proxyClass, Object proxy, Method method, Object[] args) throws Throwable {
+    	List<TestMethodHandler> handlers = proxyHandlers.get(proxyClass);
+    	if (handlers == null) {
+    		return null;
+    	}
+    	
+    	// Iterate backwards so the most recently added handler is called
+    	ListIterator<TestMethodHandler> li = handlers.listIterator(handlers.size());
+    	while(li.hasPrevious()) {
+    		TestMethodHandler handler = li.previous();
+			try {
+				return handler.getClass().getMethod(method.getName(), method.getParameterTypes()).invoke(handler, args);
+			} catch(NoSuchMethodException ex) {
+				continue;
+			}
+    	}
+    	
+    	return null;
     }
+    
+	@Override
+	public void log(Level level, String msg, Object... args) {
+		logger.log(level, String.format(msg, args));
+	}
+
+	@Override
+	public void log(String msg, Object... args) {
+		logger.log(Level.INFO, String.format(msg, args));
+	}
 }

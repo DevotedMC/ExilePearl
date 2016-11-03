@@ -141,4 +141,9 @@ public abstract class TestWorld implements World {
 		blocks.remove(b.getLocation(), b);
 		return b;
 	}
+	
+	@Override
+	public Location getSpawnLocation() {
+		return new Location(this, 0, 64, 0);
+	}
 }
