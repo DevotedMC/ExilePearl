@@ -26,7 +26,7 @@ public interface TestServer extends Server {
 	@Override
 	TestPluginManager getPluginManager();
 	
-	TestFactory getTestFactory();
+	ProxyFactory getTestFactory();
 	
     World createTestWorld(WorldCreator creator);
     

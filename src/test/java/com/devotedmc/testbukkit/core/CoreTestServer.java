@@ -78,7 +78,7 @@ import com.avaje.ebean.config.ServerConfig;
 import com.devotedmc.testbukkit.TestBukkit;
 import com.devotedmc.testbukkit.TestCommandMap;
 import com.devotedmc.testbukkit.TestConsoleCommandSender;
-import com.devotedmc.testbukkit.TestFactory;
+import com.devotedmc.testbukkit.ProxyFactory;
 import com.devotedmc.testbukkit.TestItemFactory;
 import com.devotedmc.testbukkit.TestMethodHandler;
 import com.devotedmc.testbukkit.TestPlayer;
@@ -110,7 +110,7 @@ class CoreTestServer implements TestServer {
     private TestConsoleCommandSender consoleSender;
 	private Set<Recipe> recipes = new HashSet<Recipe>();
 	private PluginLoader pluginLoader = Mockito.mock(PluginLoader.class);
-	private CoreTestFactory testFactory = new CoreTestFactory();
+	private CoreProxyFactory testFactory = new CoreProxyFactory();
 	private Map<Class<?>, List<TestMethodHandler>> proxyHandlers = new HashMap<Class<?>, List<TestMethodHandler>>();
     private int maxPlayers = 50;
     private int viewDistance = 4;
@@ -940,7 +940,7 @@ class CoreTestServer implements TestServer {
     }
     
     @Override
-    public TestFactory getTestFactory() {
+    public ProxyFactory getTestFactory() {
     	return testFactory;
     }
 

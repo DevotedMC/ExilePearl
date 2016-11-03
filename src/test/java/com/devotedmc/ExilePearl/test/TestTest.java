@@ -9,7 +9,7 @@ import com.devotedmc.testbukkit.TestBukkit;
 import com.devotedmc.testbukkit.TestBukkitRunner;
 import com.devotedmc.testbukkit.TestMethodHandler;
 import com.devotedmc.testbukkit.TestPlayer;
-import com.devotedmc.testbukkit.annotation.ProxyMock;
+import com.devotedmc.testbukkit.annotation.ProxyTarget;
 import com.devotedmc.testbukkit.annotation.ProxyStub;
 import com.devotedmc.testbukkit.annotation.TestOptions;
 

@@ -8,7 +8,6 @@ import java.util.logging.Level;
 
 import org.bukkit.Location;
 import org.bukkit.Server;
-import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -21,43 +20,30 @@ import com.devotedmc.testbukkit.TestBukkit;
 import com.devotedmc.testbukkit.TestInventory;
 import com.devotedmc.testbukkit.TestPlayer;
 import com.devotedmc.testbukkit.TestServer;
-import com.devotedmc.testbukkit.annotation.ProxyMock;
+import com.devotedmc.testbukkit.annotation.ProxyTarget;
 import com.devotedmc.testbukkit.annotation.ProxyStub;
 
-@ProxyMock(TestPlayer.class)
-class CoreTestPlayer extends TestProxyBase {
+@ProxyTarget(TestPlayer.class)
+class CoreTestPlayer extends ProxyMockBase<TestPlayer> {
 
 	private final TestServer server;
-	private final TestPlayer player;
 	private final String name;
 	private UUID uid;
 	private Location location;
 	private PlayerInventory inventory;
 	private Queue<String> messages;
+	private final TestPlayer player;
 	
-	private CoreTestPlayer(String name, UUID uid) throws Exception {
-		super(Player.class);
+	public CoreTestPlayer(String name, UUID uid) throws Exception {
+		super(TestPlayer.class);
 		this.name = name;
 		this.uid = uid;
+		this.player = getProxy();
 		this.server = TestBukkit.getServer();
 		location = server.getWorld("world").getSpawnLocation();
 		messages = new LinkedBlockingQueue<String>();
-		player = createProxyInstance(TestPlayer.class);
 		inventory = (PlayerInventory) TestInventory.create(player, InventoryType.PLAYER);
 	}
-	
-	public static TestPlayer createInstance(String name, UUID uid) {
-		try {			
-			CoreTestPlayer player = new CoreTestPlayer(name, uid);
-			return player.player;
-		} catch(Exception ex) {
-            throw new Error(ex);
-		}
-	}
-
-	public static TestPlayer createInstance(String name) {
-		return createInstance(name, UUID.randomUUID());
-	}	
 
 	@ProxyStub
 	public String getName() {

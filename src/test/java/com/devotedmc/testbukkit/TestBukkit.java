@@ -76,7 +76,7 @@ public final class TestBukkit {
      * Gets the test factory
      * @return The test factory
      */
-    public static TestFactory getTestFactory() {
+    public static ProxyFactory getTestFactory() {
     	return server.getTestFactory();
     }
 }
