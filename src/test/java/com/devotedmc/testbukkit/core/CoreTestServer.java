@@ -974,6 +974,24 @@ class CoreTestServer implements TestServer {
 			}
     	}
     	
+    	// Progressively try to find a handler for the class interfaces
+    	for(Class<?> in : proxyClass.getInterfaces()) {
+    		handlers = proxyHandlers.get(in);
+        	if (handlers == null) {
+        		continue;
+        	}
+        	
+        	li = handlers.listIterator(handlers.size());
+        	while(li.hasPrevious()) {
+        		TestMethodHandler handler = li.previous();
+    			try {
+    				return handler.getClass().getMethod(method.getName(), method.getParameterTypes()).invoke(handler, args);
+    			} catch(NoSuchMethodException ex) {
+    				continue;
+    			}
+        	}
+    	}
+    	
     	return null;
     }
     

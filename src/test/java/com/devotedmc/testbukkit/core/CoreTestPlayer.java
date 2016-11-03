@@ -60,15 +60,16 @@ class CoreTestPlayer extends ProxyMockBase<TestPlayer> {
 		return TestBukkit.getServer().getOnlinePlayers().contains(this);
 	}
 	
-	@ProxyStub
 	public String toString() {
 		return String.format("TestPlayer{ name: %s, uid: %s }", name, uid.toString());
 	}
 
+	@ProxyStub
 	public Location getLocation() {
 		return location;
 	}
-	
+
+	@ProxyStub
 	public Server getServer() {
 		return TestBukkit.getServer();
 	}

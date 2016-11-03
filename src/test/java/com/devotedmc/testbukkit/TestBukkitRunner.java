@@ -57,7 +57,7 @@ public class TestBukkitRunner extends BlockJUnit4ClassRunner {
 					server = (TestServer)Proxy.getProxyClass(loader, serverInterface).getConstructor(InvocationHandler.class).newInstance(coreProxy);
 				}
 			} catch (Exception ex) {
-				throw new InitializationError("Failed to create the TestServer instance");
+				throw new RuntimeException("Failed to create the TestServer instance", ex);
 			}
 		} else {
 			server.configureLogger(useLogger);

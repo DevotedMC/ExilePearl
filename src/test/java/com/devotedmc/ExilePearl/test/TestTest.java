@@ -44,4 +44,9 @@ public class TestTest<T> implements TestMethodHandler {
 		return true;
 	}
 	
+	@ProxyStub(Player.class)
+	public String getName() {
+		return "test";
+	}
+	
 }

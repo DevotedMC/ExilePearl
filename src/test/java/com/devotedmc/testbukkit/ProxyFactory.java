@@ -4,13 +4,11 @@ import java.util.UUID;
 
 public interface ProxyFactory {
 	
-	
 	/**
 	 * Registers a proxy class
 	 * @param proxy The proxy class
 	 */
 	void registerProxy(Class<? extends ProxyMock<?>> proxy);
-	
 
 	/**
 	 * Creates a new proxy instance
