@@ -15,7 +15,6 @@ import org.bukkit.WorldType;
 import org.bukkit.block.Block;
 import org.mockito.Mockito;
 
-@SuppressWarnings("deprecation")
 public abstract class TestWorld implements World {
 
 	public String name;

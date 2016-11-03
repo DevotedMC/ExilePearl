@@ -24,9 +24,12 @@ public class TestTest<T> implements TestMethodHandler {
 		TestBukkit.getServer().addProxyHandler(Player.class, this);
 
 		player = TestBukkit.createPlayer("Player1");
-		player.connect();
+		player.connect();		
+	}
+	
+	@After
+	public void tearDown() {
 		player.disconnect();
-		
 	}
 
 	@Test

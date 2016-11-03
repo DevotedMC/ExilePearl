@@ -1,9 +1,5 @@
 package com.devotedmc.testbukkit.core;
 
-import static org.mockito.Mockito.*;
-
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Proxy;
 import java.net.InetSocketAddress;
 import java.util.Queue;
 import java.util.UUID;
@@ -13,6 +9,7 @@ import java.util.logging.Level;
 import org.bukkit.Location;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
@@ -22,6 +19,7 @@ import org.bukkit.inventory.PlayerInventory;
 
 import com.devotedmc.testbukkit.ProxyMethod;
 import com.devotedmc.testbukkit.TestBukkit;
+import com.devotedmc.testbukkit.TestInventory;
 import com.devotedmc.testbukkit.TestPlayer;
 import com.devotedmc.testbukkit.TestServer;
 
@@ -41,9 +39,9 @@ class CoreTestPlayer extends TestProxyBase {
 		this.uid = uid;
 		this.server = TestBukkit.getServer();
 		location = server.getWorld("world").getSpawnLocation();
-		inventory = mock(PlayerInventory.class);
 		messages = new LinkedBlockingQueue<String>();
 		player = createProxyInstance(TestPlayer.class);
+		inventory = (PlayerInventory) TestInventory.create(player, InventoryType.PLAYER);
 	}
 	
 	public static TestPlayer createInstance(String name, UUID uid) {
@@ -88,6 +86,7 @@ class CoreTestPlayer extends TestProxyBase {
 
 	public boolean connect() {
     	final InetSocketAddress address = new InetSocketAddress("localhost", 25565);
+    	server.log("UUID of player %s is %s", player.getName(), uid.toString());
     	final AsyncPlayerPreLoginEvent preLoginEvent = new AsyncPlayerPreLoginEvent(name, address.getAddress(), uid);
     	TestBukkit.getPluginManager().callEvent(preLoginEvent);
     	if (preLoginEvent.getLoginResult() != Result.ALLOWED) {
@@ -104,7 +103,8 @@ class CoreTestPlayer extends TestProxyBase {
     	final PlayerJoinEvent joinEvent = new PlayerJoinEvent(player, "");
     	TestBukkit.getPluginManager().callEvent(joinEvent);
 		
-    	server.log("%s logged in with UUID=%s at %s", player.getName(), player.getUniqueId().toString(), player.getLocation().toString());
+    	Location l = player.getLocation();
+    	server.log("%s logged in at ([%s]%f, %f, %f)", player.getName(), l.getWorld().getName(), l.getX(), l.getY(),l.getZ());
 		server.addPlayer(player);
 		return true;
 	}
@@ -136,5 +136,9 @@ class CoreTestPlayer extends TestProxyBase {
     
     public Queue<String> getMessages() {
     	return messages;
+    }
+    
+    public PlayerInventory getInventory() {
+    	return inventory;
     }
 }
