@@ -17,12 +17,14 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result;
 import org.bukkit.inventory.PlayerInventory;
 
-import com.devotedmc.testbukkit.ProxyMethod;
 import com.devotedmc.testbukkit.TestBukkit;
 import com.devotedmc.testbukkit.TestInventory;
 import com.devotedmc.testbukkit.TestPlayer;
 import com.devotedmc.testbukkit.TestServer;
+import com.devotedmc.testbukkit.annotation.ProxyMock;
+import com.devotedmc.testbukkit.annotation.ProxyStub;
 
+@ProxyMock(TestPlayer.class)
 class CoreTestPlayer extends TestProxyBase {
 
 	private final TestServer server;
@@ -57,21 +59,22 @@ class CoreTestPlayer extends TestProxyBase {
 		return createInstance(name, UUID.randomUUID());
 	}	
 
-	@ProxyMethod(Player.class)
+	@ProxyStub
 	public String getName() {
 		return name;
 	}
 
-	@ProxyMethod(Player.class)
+	@ProxyStub
 	public UUID getUniqueId() {
 		return uid;
 	}
 
-	@ProxyMethod(Player.class)
+	@ProxyStub
 	public boolean isOnline() {
 		return TestBukkit.getServer().getOnlinePlayers().contains(this);
 	}
 	
+	@ProxyStub
 	public String toString() {
 		return String.format("TestPlayer{ name: %s, uid: %s }", name, uid.toString());
 	}

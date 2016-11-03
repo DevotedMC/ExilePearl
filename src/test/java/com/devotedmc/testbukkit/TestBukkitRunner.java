@@ -9,6 +9,8 @@ import java.util.Arrays;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.InitializationError;
 
+import com.devotedmc.testbukkit.annotation.TestOptions;
+
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtConstructor;

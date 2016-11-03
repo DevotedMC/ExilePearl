@@ -1,10 +1,12 @@
-package com.devotedmc.testbukkit;
+package com.devotedmc.testbukkit.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import com.devotedmc.testbukkit.TestServer;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

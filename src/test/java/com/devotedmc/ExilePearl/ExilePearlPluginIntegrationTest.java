@@ -12,10 +12,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.devotedmc.testbukkit.TestBukkitRunner;
-import com.devotedmc.testbukkit.TestOptions;
 import com.devotedmc.testbukkit.TestPlayer;
 import com.devotedmc.testbukkit.TestPlugin;
 import com.devotedmc.testbukkit.TestServer;
+import com.devotedmc.testbukkit.annotation.TestOptions;
 import com.devotedmc.testbukkit.v1_10_R1.TestServer_v1_10_R1;
 
 import vg.civcraft.mc.civmodcore.util.TextUtil;

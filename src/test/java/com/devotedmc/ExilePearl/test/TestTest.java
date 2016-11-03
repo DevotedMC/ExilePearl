@@ -5,12 +5,13 @@ import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
-import com.devotedmc.testbukkit.ProxyMethod;
 import com.devotedmc.testbukkit.TestBukkit;
 import com.devotedmc.testbukkit.TestBukkitRunner;
 import com.devotedmc.testbukkit.TestMethodHandler;
-import com.devotedmc.testbukkit.TestOptions;
 import com.devotedmc.testbukkit.TestPlayer;
+import com.devotedmc.testbukkit.annotation.ProxyMock;
+import com.devotedmc.testbukkit.annotation.ProxyStub;
+import com.devotedmc.testbukkit.annotation.TestOptions;
 
 @SuppressWarnings("unused")
 @RunWith(TestBukkitRunner.class)
@@ -38,7 +39,7 @@ public class TestTest<T> implements TestMethodHandler {
 		player.getAllowFlight();
 	}
 	
-	@ProxyMethod(Player.class)
+	@ProxyStub(Player.class)
 	public boolean getAllowFlight() {
 		return true;
 	}

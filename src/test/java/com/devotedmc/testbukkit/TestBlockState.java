@@ -14,7 +14,7 @@ import org.bukkit.material.MaterialData;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-@SuppressWarnings("deprecation")
+@SuppressWarnings({ "deprecation", "unused" })
 public abstract class TestBlockState implements BlockState {
 	
 	public TestBlock block;
@@ -68,13 +68,14 @@ public abstract class TestBlockState implements BlockState {
 
 				@Override
 				public Inventory answer(InvocationOnMock invocation) throws Throwable {
+			        /*
 					TestBlockState state = (TestBlockState)invocation.getMock();
 					Inventory inventory = ((InventoryHolder)state).getInventory();
 			        int x = state.getX();
 			        int y = state.getY();
 			        int z = state.getZ();
 			        TestWorld world = state.getWorld();
-			        
+
 			        int id;
 			        if (world.getBlockTypeIdAt(x, y, z) == Material.CHEST.getId()) {
 			            id = Material.CHEST.getId();
@@ -83,7 +84,6 @@ public abstract class TestBlockState implements BlockState {
 			        } else {
 			            throw new IllegalStateException("CraftChest is not a chest but is instead " + world.getBlockAt(x, y, z));
 			        }
-			        /*
 			        if (world.getBlockTypeIdAt(x - 1, y, z) == id) {
 			        	Inventory left = TestInventory.create((InventoryHolder)TestBlockState.create(world.getBlockAt(x -1, y, z)), InventoryType.CHEST);
 			        	Inventory right = inventory;
@@ -106,7 +106,7 @@ public abstract class TestBlockState implements BlockState {
 					
 					
 					
-					return inventory;
+					return null;
 				}
 			});
 		}

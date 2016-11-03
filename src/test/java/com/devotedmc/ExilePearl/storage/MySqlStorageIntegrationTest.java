@@ -35,7 +35,7 @@ import com.devotedmc.ExilePearl.config.MySqlConfig;
 import com.devotedmc.ExilePearl.core.MockPearl;
 import com.devotedmc.ExilePearl.test.TestPearlLogger;
 import com.devotedmc.testbukkit.TestBukkitRunner;
-import com.devotedmc.testbukkit.TestOptions;
+import com.devotedmc.testbukkit.annotation.TestOptions;
 
 import vg.civcraft.mc.civmodcore.dao.ConnectionPool;
 
