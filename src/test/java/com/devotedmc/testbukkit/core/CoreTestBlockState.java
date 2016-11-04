@@ -26,7 +26,7 @@ import com.devotedmc.testbukkit.annotation.ProxyTarget;
 	private MaterialData data;
 
 	public CoreTestBlockState(TestBlock block, Class<? extends BlockState> stateType) {
-		super(TestBlockState.class, stateType);		
+		super(TestBlockState.class, stateType);
 		
 		this.block = block;
 		this.stateType = stateType;
@@ -157,7 +157,6 @@ import com.devotedmc.testbukkit.annotation.ProxyTarget;
     }
 	
 
-	@ProxyStub(InventoryHolder.class)
     public Inventory getInventory() {		
 		if (!Arrays.asList(stateType.getInterfaces()).contains(InventoryHolder.class)) {
 			return null;

@@ -91,6 +91,7 @@ public class CoreTestWorld extends ProxyMockBase<TestWorld> {
 		TestChunk c = chunks.get(key);
 		if (c == null) {
 			c = createInstance(TestChunk.class, getProxy(), x, z);
+			chunks.put(key, c);
 		}
 		return c;
 	}

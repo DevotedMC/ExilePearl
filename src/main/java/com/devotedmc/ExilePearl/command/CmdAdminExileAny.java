@@ -99,7 +99,7 @@ public class CmdAdminExileAny extends PearlCommand {
 				return;
 			}
 			
-			Block b = new Location(world, x, y, z).getBlock();			
+			Block b = world.getBlockAt(x, y, z);
 			BlockState bs = b.getState();
 			if (bs == null || (!(bs instanceof InventoryHolder))) {
 				msg(Lang.locNotInventory);

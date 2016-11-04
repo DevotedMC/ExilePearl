@@ -49,9 +49,11 @@ public class CoreTestChunk extends ProxyMockBase<TestChunk> {
 
 	@ProxyStub
 	public TestBlock getBlock(int x, int y, int z) {
-		TestBlock b = blocks.get(getBlockKeyCoord(x, y, z));
+		BigInteger key = getBlockKeyCoord(x, y, z);
+		TestBlock b = blocks.get(key);
 		if (b == null) {
 			b = createInstance(TestBlock.class, getProxy(), (getX() << 4) | (x & 0xF), y, (getZ() << 4) | (z & 0xF));
+			blocks.put(key, b);
 			
 			if(y < 64) {
 				b.setType(Material.DIRT);
@@ -106,9 +108,8 @@ public class CoreTestChunk extends ProxyMockBase<TestChunk> {
     }
     
     private static BigInteger getBlockKeyCoord(int x, int y, int z) {
-    	
-    	BigInteger bigX = BigInteger.valueOf((long)x);
-    	BigInteger bigY = BigInteger.valueOf((long)y);
+    	BigInteger bigX = BigInteger.valueOf((long)x).shiftLeft(64);
+    	BigInteger bigY = BigInteger.valueOf((long)y).shiftLeft(32);
     	BigInteger bigZ = BigInteger.valueOf((long)z);
     	return bigX.add(bigY).add(bigZ);
     }

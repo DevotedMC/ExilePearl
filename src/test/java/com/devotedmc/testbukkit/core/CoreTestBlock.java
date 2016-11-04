@@ -179,11 +179,7 @@ public class CoreTestBlock extends ProxyMockBase<TestBlock> {
         	break;
         }
         
-        if (stateClass != TestBlockState.class) {
-        	return createInstance(TestBlockState.class, getProxy(), stateClass);
-        } else {
-        	return createInstance(TestBlockState.class, getProxy());
-        }
+    	return createInstance(TestBlockState.class, getProxy(), stateClass);
     }
 	
 	@ProxyStub

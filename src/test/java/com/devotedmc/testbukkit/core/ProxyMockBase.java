@@ -3,6 +3,9 @@ package com.devotedmc.testbukkit.core;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import com.devotedmc.testbukkit.ProxyMock;
 import com.devotedmc.testbukkit.TestBukkit;
@@ -58,13 +61,29 @@ class ProxyMockBase<T> implements ProxyMock<T>, InvocationHandler {
 	
 	private final T createProxyInstance() {
 		try {
-			Class<?>[] proxyArg = new  Class<?>[interfaces.length + 1];
-			proxyArg[0] = proxyType;
-			for(int i = 1; i <= interfaces.length; i++) {
-				proxyArg[i] = interfaces[i];
+			Class<?>[] argArray;
+			int numInt = interfaces.length;
+			if (numInt > 0) {
+				int numToAdd = 0;
+				for(int i = 0; i < numInt; i++) {
+					if (interfaces[i] != proxyType) {
+						numToAdd++;
+					}
+				}
+				argArray = new Class<?>[numToAdd + 1];
+				argArray[0] = proxyType;
+				int j = 1;
+				for(int i = 0; i < numInt; i++) {
+					if (interfaces[i] != proxyType) {
+						argArray[j++] = interfaces[i];
+					}
+				}
+			} else {
+				argArray = new Class<?>[1];
+				argArray[0] = proxyType;
 			}
 			
-			return proxyType.cast(Proxy.getProxyClass(getClass().getClassLoader(), proxyArg).getConstructor(InvocationHandler.class).newInstance(this));
+			return proxyType.cast(Proxy.getProxyClass(getClass().getClassLoader(), argArray).getConstructor(InvocationHandler.class).newInstance(this));
 		} catch (Exception ex) {
 			throw new RuntimeException("Unable to create proxy for type " + proxyType.getSimpleName(), ex);
 		}

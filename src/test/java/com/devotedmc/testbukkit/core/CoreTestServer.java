@@ -60,6 +60,7 @@ import org.mockito.Mockito;
 import com.devotedmc.testbukkit.TestCommandMap;
 import com.devotedmc.testbukkit.TestConsoleCommandSender;
 import com.devotedmc.testbukkit.ProxyFactory;
+import com.devotedmc.testbukkit.ProxyMock;
 import com.devotedmc.testbukkit.TestBukkit;
 import com.devotedmc.testbukkit.TestItemFactory;
 import com.devotedmc.testbukkit.TestPlayer;
@@ -175,6 +176,15 @@ class CoreTestServer extends ProxyMockBase<TestServer> {
     	ListIterator<Object> li = handlers.listIterator(handlers.size());
     	while(li.hasPrevious()) {
     		Object handler = li.previous();
+    		
+    		if (handler instanceof ProxyMock) {
+    			// If the handler is a proxy mock, it should only handle calls
+    			// for it's specific instance
+    			ProxyMock<?> handlerProxy = (ProxyMock<?>)handler;
+    			if (handlerProxy.getProxy() != proxy) {
+    				continue;
+    			}
+    		}
 			try {
 				return handler.getClass().getMethod(method.getName(), method.getParameterTypes()).invoke(handler, args);
 			} catch(NoSuchMethodException ex) {
