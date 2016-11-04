@@ -26,7 +26,7 @@ public interface TestServer extends Server, ServerProxy {
 	@Override
 	TestPluginManager getPluginManager();
 	
-	ProxyFactory getTestFactory();
+	ProxyFactory getProxyFactory();
 	
     World createTestWorld(WorldCreator creator);
     
@@ -46,9 +46,14 @@ public interface TestServer extends Server, ServerProxy {
     
     File getTestPluginConfigFile(JavaPlugin plugin);
     
-    void addProxyHandler(Class<?> clazz, TestMethodHandler handler);
+    void addProxyHandler(Class<?> clazz, Object handler);
     
     Object invokeProxy(Class<?> proxyClass, Object proxy, Method method, Object[] args) throws Throwable;
+    
+    void createWorlds() ;
+    
+    @Override
+    TestWorld getWorld(String name);
     
 	/**
 	 * Logs a message

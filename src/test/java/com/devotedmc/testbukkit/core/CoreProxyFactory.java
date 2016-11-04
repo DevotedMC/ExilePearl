@@ -13,12 +13,17 @@ import com.devotedmc.testbukkit.TestPlayer;
 import com.devotedmc.testbukkit.annotation.ProxyStub;
 import com.devotedmc.testbukkit.annotation.ProxyTarget;
 
+import javassist.Modifier;
+
 public class CoreProxyFactory implements ProxyFactory {
 	
 	private static final Map<Class<?>, Class<? extends ProxyMock<?>>> proxyMocks = new HashMap<Class<?>, Class<? extends ProxyMock<?>>>();
 	
 	static {
 		registerProxyInternal(CoreTestPlayer.class);
+		registerProxyInternal(CoreTestBlock.class);
+		registerProxyInternal(CoreTestWorld.class);
+		registerProxyInternal(CoreTestChunk.class);
 	}
 	
 	public CoreProxyFactory() {
@@ -65,20 +70,35 @@ public class CoreProxyFactory implements ProxyFactory {
 			ProxyStub stub = m.getAnnotation(ProxyStub.class);
 			if (stub == null) {
 				continue;
-			}
-			
-			Method[] methods = targetType.getMethods();
-			
+			}			
 			boolean match = false;
 			for (Method m2 : targetType.getMethods()) {
 				if (m2.getName().equals(m.getName()) && Arrays.equals(m.getParameterTypes(), m2.getParameterTypes()) && m.getReturnType().equals(m2.getReturnType())) {
+					
+					if (!Modifier.isPublic(m2.getModifiers())) {
+						throw new NoSuchMethodError(String.format("The proxy stub %s.%s() isn't public", proxyType.getSimpleName(), m.getName()));
+					}
+					
 					match = true;
 					break;
 				}
 			}
 			
 			if (!match) {
-				throw new Error(String.format("The proxy stub %s.%s doesn't exist in %s", proxyType.getSimpleName(), m.getName(), ProxyTarget.class.getName()));
+				String params = "";
+				Class<?>[] paramTypes = m.getParameterTypes();
+				if (paramTypes.length == 0) {
+					params = "void";
+				} else {
+					for (Class<?> p : paramTypes) {
+						params += p.getSimpleName();
+						params += ", ";
+					}
+					params = params.substring(0, params.length() - 2);
+				}
+				
+				
+				throw new NoSuchMethodError(String.format("The proxy stub %s.%s(%s) doesn't exist in %s", proxyType.getSimpleName(), m.getName(), params, targetType.getName()));
 			}
 		}
 		

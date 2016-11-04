@@ -13,8 +13,8 @@ import java.util.regex.Pattern;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Server;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -29,14 +29,16 @@ import com.devotedmc.ExilePearl.holder.PearlHolder;
 import com.devotedmc.testbukkit.TestBlock;
 import com.devotedmc.testbukkit.TestBukkitRunner;
 import com.devotedmc.testbukkit.TestPlayer;
+import com.devotedmc.testbukkit.TestServer;
 import com.devotedmc.testbukkit.TestWorld;
+import com.devotedmc.testbukkit.annotation.ProxyStub;
 
 import vg.civcraft.mc.civmodcore.util.TextUtil;
 
 @RunWith(TestBukkitRunner.class)
 public class CommandTest {
 	
-	private Server server;
+	private TestServer server;
 	private HashSet<BaseCommand<?>> commands = new HashSet<BaseCommand<?>>();
 	private ExilePearlApi pearlApi;
 	private LoreProvider loreProvider;
@@ -52,12 +54,12 @@ public class CommandTest {
 	@Before
 	public void setUp() throws Exception {
 		server = getServer();
+		server.addProxyHandler(Player.class, this);
 		
 		player1 = createPlayer("Player1");
 		player1.connect();
 		player2 = createPlayer("Player2");
 		player3 = createPlayer("Player3");
-		when(player1.hasPermission(anyString())).thenReturn(true);
 		
 		// A variety of different argument values to test
 		testArgs = Arrays.asList("-10", "0", "1", "3.1415", "world", "true", "false", "null", player2.getUniqueId().toString(), player3.getUniqueId().toString());
@@ -170,10 +172,9 @@ public class CommandTest {
 		ArgumentCaptor<UUID> arg2 = ArgumentCaptor.forClass(UUID.class);
 		ArgumentCaptor<Location> arg3 = ArgumentCaptor.forClass(Location.class);
 		
-		TestWorld world = (TestWorld)server.getWorld("world");
-		TestBlock block = TestBlock.create(new Location(world, 1, 2, 3), Material.CHEST);
-		
-		world.addBlock(block);
+		TestWorld world = server.getWorld("world");
+		TestBlock block = world.getBlockAt(1, 2, 3);
+		block.setType(Material.CHEST);
 		
 		runCommand("ep exileany %s %s world 1 2 3", player3.getUniqueId(), player1.getUniqueId());
 		verify(pearlApi).exilePlayer(arg1.capture(), arg2.capture(), arg3.capture());
@@ -301,5 +302,9 @@ public class CommandTest {
 		}
 		return null;
 	}
-
+	
+	@ProxyStub(Player.class)
+	public boolean hasPermission(String perm) {
+		return true;
+	}
 }

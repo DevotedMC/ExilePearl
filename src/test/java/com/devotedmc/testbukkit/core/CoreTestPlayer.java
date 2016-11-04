@@ -7,7 +7,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 
 import org.bukkit.Location;
-import org.bukkit.Server;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -70,7 +69,7 @@ class CoreTestPlayer extends ProxyMockBase<TestPlayer> {
 	}
 
 	@ProxyStub
-	public Server getServer() {
+	public TestServer getServer() {
 		return TestBukkit.getServer();
 	}
 

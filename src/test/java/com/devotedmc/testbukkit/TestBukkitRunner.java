@@ -50,12 +50,13 @@ public class TestBukkitRunner extends BlockJUnit4ClassRunner {
 				// If a different server proxy is specified, create that one
 				if (proxyType != TestServer.class) {
 					ServerProxy proxy = proxyType.getConstructor(ServerProxy.class).newInstance(server);
-					server = proxy.getServer();
+					server = proxy.getProxy();
 				}
 		        
 		        TestBukkit.setServer(server);
+		        server.createWorlds();
 			} catch (Exception ex) {
-				throw new RuntimeException("Failed to create the TestServer instance", ex);
+				throw new InitializationError(ex);
 			}
 		} else {
 			server.configureLogger(useLogger);

@@ -41,4 +41,7 @@ public interface TestPlayer extends Player {
 	 * Clears the stored messages
 	 */
 	void clearMessages();
+	
+	@Override
+	TestServer getServer();
 }

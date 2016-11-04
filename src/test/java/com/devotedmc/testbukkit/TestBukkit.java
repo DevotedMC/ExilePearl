@@ -42,7 +42,7 @@ public final class TestBukkit {
      * @return The test player instance
      */
     public static TestPlayer createPlayer(String name, UUID uid) {
-    	return getTestFactory().createPlayer(name, uid);
+    	return getProxyFactory().createPlayer(name, uid);
     }
     
     /**
@@ -51,7 +51,7 @@ public final class TestBukkit {
      * @return The test player instance
      */
     public static TestPlayer createPlayer(String name) {
-    	return getTestFactory().createPlayer(name);
+    	return getProxyFactory().createPlayer(name);
     }
     
     /**
@@ -76,7 +76,7 @@ public final class TestBukkit {
      * Gets the test factory
      * @return The test factory
      */
-    public static ProxyFactory getTestFactory() {
-    	return server.getTestFactory();
+    public static ProxyFactory getProxyFactory() {
+    	return server.getProxyFactory();
     }
 }

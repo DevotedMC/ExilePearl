@@ -19,7 +19,7 @@ public class TestServer_v1_10_R1 implements ServerProxy {
 	}
 
 	@Override
-	public TestServer getServer() {
-		return serverProxy.getServer();
+	public TestServer getProxy() {
+		return serverProxy.getProxy();
 	}
 }

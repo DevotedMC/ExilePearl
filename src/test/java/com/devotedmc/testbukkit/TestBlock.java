@@ -1,87 +1,35 @@
 package com.devotedmc.testbukkit;
 
-import static org.mockito.Mockito.mock;
-
-import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.mockito.Mockito;
+import org.bukkit.block.BlockFace;
 
-@SuppressWarnings("deprecation")
-public abstract class TestBlock implements Block {
+public interface TestBlock extends Block {
+	
+	@Override
+	TestWorld getWorld();
+	
+	@Override
+	TestChunk getChunk();
 
-	public TestWorld world;
-	public int X;
-	public int Y;
-	public int Z;
-	public Material type;
-	public TestBlockState state;
-	
-	public static TestBlock create(TestWorld world, int x, int y, int z, Material type) {
-		TestBlock b = mock(TestBlock.class, Mockito.CALLS_REAL_METHODS);
-		b.world = world;
-		b.X = x;
-		b.Y = y;
-		b.Z = z;
-		b.type = type;
-		b.state = TestBlockState.create(b);
-		return b;
-	}
-	
-	public static TestBlock create(Location l, Material type) {
-		return create((TestWorld)l.getWorld(), l.getBlockX(), l.getBlockY(), l.getBlockZ(), type);
-	}
-	
-	private TestBlock() { }
+	@Override
+	TestBlockState getState();
 	
 	@Override
-	public Material getType() {
-		return type;
-	}
-	
+	TestLocation getLocation();
+
+    TestBlock getFace(final BlockFace face);
+
+    TestBlock getFace(final BlockFace face, final int distance);
+
 	@Override
-	public void setType(Material type) {
-		this.type = type;
-	}
-	
+    TestBlock getRelative(final int modX, final int modY, final int modZ);
+
 	@Override
-	public int getTypeId() {
-		return type.getId();
-	}
-	
+    TestBlock getRelative(BlockFace face);
+
 	@Override
-	public TestWorld getWorld() {
-		return world;
-	}
-	
+    TestBlock getRelative(BlockFace face, int distance);
+
 	@Override
-	public int getX() {
-		return X;
-	}
-	
-	@Override
-	public int getY() {
-		return Y;
-	}
-	
-	@Override
-	public int getZ() {
-		return Z;
-	}
-	
-	@Override
-	public Location getLocation() {
-		return new Location(world, X, Y, Z);
-	}
-	
-	@Override
-	public boolean isEmpty() {
-		return type == Material.AIR;
-	}
-	
-	@Override
-	public BlockState getState() {
-		return this.state;
-	}
+    BlockFace getFace(final Block block);
 }

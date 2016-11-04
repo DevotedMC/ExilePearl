@@ -60,8 +60,8 @@ import org.mockito.Mockito;
 import com.devotedmc.testbukkit.TestCommandMap;
 import com.devotedmc.testbukkit.TestConsoleCommandSender;
 import com.devotedmc.testbukkit.ProxyFactory;
+import com.devotedmc.testbukkit.TestBukkit;
 import com.devotedmc.testbukkit.TestItemFactory;
-import com.devotedmc.testbukkit.TestMethodHandler;
 import com.devotedmc.testbukkit.TestPlayer;
 import com.devotedmc.testbukkit.TestPlugin;
 import com.devotedmc.testbukkit.TestPluginManager;
@@ -89,8 +89,8 @@ class CoreTestServer extends ProxyMockBase<TestServer> {
     private TestConsoleCommandSender consoleSender;
 	private Set<Recipe> recipes = new HashSet<Recipe>();
 	private PluginLoader pluginLoader = Mockito.mock(PluginLoader.class);
-	private CoreProxyFactory testFactory = new CoreProxyFactory();
-	private Map<Class<?>, List<TestMethodHandler>> proxyHandlers = new HashMap<Class<?>, List<TestMethodHandler>>();
+	private CoreProxyFactory proxyFactory = new CoreProxyFactory();
+	private Map<Class<?>, List<Object>> proxyHandlers = new HashMap<Class<?>, List<Object>>();
     private int maxPlayers = 50;
     private int viewDistance = 4;
     private boolean allowNether = true;
@@ -111,11 +111,6 @@ class CoreTestServer extends ProxyMockBase<TestServer> {
 		pluginManager = spy(new TestPluginManager(server, commandMap));
 		
 		configureLogger(useLogger);
-        
-        // Create default worlds
-        createTestWorld(new WorldCreator("world"));
-        createTestWorld(new WorldCreator("world_nether"));
-        createTestWorld(new WorldCreator("world_the_end"));
         
         consoleSender = new TestConsoleCommandSender();
     }
@@ -171,15 +166,15 @@ class CoreTestServer extends ProxyMockBase<TestServer> {
 
     @ProxyStub
     public Object invokeProxy(Class<?> proxyClass, Object proxy, Method method, Object[] args) throws Throwable {
-    	List<TestMethodHandler> handlers = proxyHandlers.get(proxyClass);
+    	List<Object> handlers = proxyHandlers.get(proxyClass);
     	if (handlers == null) {
     		return null;
     	}
     	
     	// Iterate backwards so the most recently added handler is called
-    	ListIterator<TestMethodHandler> li = handlers.listIterator(handlers.size());
+    	ListIterator<Object> li = handlers.listIterator(handlers.size());
     	while(li.hasPrevious()) {
-    		TestMethodHandler handler = li.previous();
+    		Object handler = li.previous();
 			try {
 				return handler.getClass().getMethod(method.getName(), method.getParameterTypes()).invoke(handler, args);
 			} catch(NoSuchMethodException ex) {
@@ -196,7 +191,7 @@ class CoreTestServer extends ProxyMockBase<TestServer> {
         	
         	li = handlers.listIterator(handlers.size());
         	while(li.hasPrevious()) {
-        		TestMethodHandler handler = li.previous();
+        		Object handler = li.previous();
     			try {
     				return handler.getClass().getMethod(method.getName(), method.getParameterTypes()).invoke(handler, args);
     			} catch(NoSuchMethodException ex) {
@@ -661,8 +656,21 @@ class CoreTestServer extends ProxyMockBase<TestServer> {
 		return itemFactory;
 	}
 	
-    public World createTestWorld(WorldCreator creator) {    	
-    	TestWorld testWorld = TestWorld.create(creator.name(), creator.environment(), creator.type());
+
+	@ProxyStub
+	public void createWorlds() {
+		if (TestBukkit.getServer() == null) {
+			throw new RuntimeException("The server hasn't been initialized yet");
+		}
+		
+        // Create default worlds
+        createTestWorld(new WorldCreator("world"));
+        createTestWorld(new WorldCreator("world_nether"));
+        createTestWorld(new WorldCreator("world_the_end"));
+	}
+	
+    public World createTestWorld(WorldCreator creator) {
+    	TestWorld testWorld = new CoreTestWorld(creator.name(), creator.environment(), creator.type()).getProxy();
     	worlds.put(testWorld.getName(), testWorld);
     	return testWorld;
     }
@@ -727,15 +735,15 @@ class CoreTestServer extends ProxyMockBase<TestServer> {
     }
     
     @ProxyStub
-    public ProxyFactory getTestFactory() {
-    	return testFactory;
+    public ProxyFactory getProxyFactory() {
+    	return proxyFactory;
     }
 
     @ProxyStub
-    public void addProxyHandler(Class<?> clazz, TestMethodHandler handler) {
-    	List<TestMethodHandler> handlers = proxyHandlers.get(clazz);
+    public void addProxyHandler(Class<?> clazz, Object handler) {
+    	List<Object> handlers = proxyHandlers.get(clazz);
     	if (handlers == null) {
-    		handlers = new ArrayList<TestMethodHandler>();
+    		handlers = new ArrayList<Object>();
     		proxyHandlers.put(clazz, handlers);
     	}
     	if (!handlers.contains(handler)) {
