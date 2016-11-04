@@ -6,6 +6,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.devotedmc.testbukkit.ServerProxy;
 import com.devotedmc.testbukkit.TestServer;
 
 @Retention(RetentionPolicy.RUNTIME)
@@ -33,9 +34,9 @@ public @interface TestOptions {
 	
 	/**
 	 * 
-	 * @return Gets the optional server interface
+	 * @return Gets the optional server class
 	 */
-	Class<? extends TestServer> server() default TestServer.class;
+	Class<? extends ServerProxy> server() default TestServer.class;
 	
 	/**
 	 * Whether to use default stubbing for interface methods.

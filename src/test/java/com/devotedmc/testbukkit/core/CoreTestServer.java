@@ -2,7 +2,6 @@ package com.devotedmc.testbukkit.core;
 
 import static org.mockito.Mockito.*;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.text.DateFormat;
@@ -28,35 +27,21 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import org.apache.commons.lang.Validate;
-import org.bukkit.BanList;
-import org.bukkit.BanList.Type;
 import org.bukkit.GameMode;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.UnsafeValues;
 import org.bukkit.Warning.WarningState;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
-import org.bukkit.boss.BarColor;
-import org.bukkit.boss.BarFlag;
-import org.bukkit.boss.BarStyle;
-import org.bukkit.boss.BossBar;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.generator.ChunkGenerator.ChunkData;
-import org.bukkit.help.HelpMap;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemFactory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
-import org.bukkit.map.MapView;
 import org.bukkit.permissions.Permissible;
 import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.InvalidDescriptionException;
@@ -70,12 +55,8 @@ import org.bukkit.plugin.messaging.Messenger;
 import org.bukkit.plugin.messaging.StandardMessenger;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitWorker;
-import org.bukkit.scoreboard.ScoreboardManager;
-import org.bukkit.util.CachedServerIcon;
 import org.mockito.Mockito;
 
-import com.avaje.ebean.config.ServerConfig;
-import com.devotedmc.testbukkit.TestBukkit;
 import com.devotedmc.testbukkit.TestCommandMap;
 import com.devotedmc.testbukkit.TestConsoleCommandSender;
 import com.devotedmc.testbukkit.ProxyFactory;
@@ -87,26 +68,24 @@ import com.devotedmc.testbukkit.TestPluginManager;
 import com.devotedmc.testbukkit.TestScheduler;
 import com.devotedmc.testbukkit.TestServer;
 import com.devotedmc.testbukkit.TestWorld;
+import com.devotedmc.testbukkit.annotation.ProxyStub;
 
-import net.md_5.bungee.api.chat.BaseComponent;
-
-@SuppressWarnings("deprecation")
-class CoreTestServer implements TestServer {
+class CoreTestServer extends ProxyMockBase<TestServer> {
 	
+	private final TestServer server;
     private final String serverName = "TestBukkit";
     private final String serverVersion = "0.0.0";
     private final String bukkitVersion = "0.0.0";
     private Logger logger;
     private final ServicesManager servicesManager = new SimpleServicesManager();
-    private final TestCommandMap commandMap = new TestCommandMap(this);
+    private final TestCommandMap commandMap;
     private final StandardMessenger messenger = new StandardMessenger();
-    private final TestPluginManager pluginManager = spy(new TestPluginManager(this, commandMap));
+    private final TestPluginManager pluginManager;
     private final TestScheduler scheduler = spy(new TestScheduler());
     private final TestItemFactory itemFactory = spy(new TestItemFactory());
     private final Map<String, TestWorld> worlds = new LinkedHashMap<String, TestWorld>();
     private List<TestPlayer> onlinePlayers = new LinkedList<TestPlayer>();
     private List<OfflinePlayer> offlinePlayers = new LinkedList<OfflinePlayer>();
-    private YamlConfiguration configuration = new YamlConfiguration();
     private TestConsoleCommandSender consoleSender;
 	private Set<Recipe> recipes = new HashSet<Recipe>();
 	private PluginLoader pluginLoader = Mockito.mock(PluginLoader.class);
@@ -125,14 +104,18 @@ class CoreTestServer implements TestServer {
      * @param useLogger
      */
 	public CoreTestServer(boolean useLogger) {
+		super(TestServer.class);
+        addProxyHandler(TestServer.class, this);
+		server = getProxy();
+		commandMap = new TestCommandMap(server);
+		pluginManager = spy(new TestPluginManager(server, commandMap));
+		
 		configureLogger(useLogger);
         
         // Create default worlds
         createTestWorld(new WorldCreator("world"));
         createTestWorld(new WorldCreator("world_nether"));
         createTestWorld(new WorldCreator("world_the_end"));
-        
-        TestBukkit.setServer(this);
         
         consoleSender = new TestConsoleCommandSender();
     }
@@ -142,7 +125,7 @@ class CoreTestServer implements TestServer {
     }
     
 
-	@Override
+	@ProxyStub
     public void configureLogger(boolean useLogger) {
     	if (this.useLogger != useLogger && logger != null) {
     		return;
@@ -159,7 +142,7 @@ class CoreTestServer implements TestServer {
 		// Format the logger output
 		Formatter formatter = new Formatter() {
 			private final DateFormat df = new SimpleDateFormat("hh:mm:ss");
-			@Override
+			@ProxyStub
 			public String format(LogRecord record) {
 				String level = record.getLevel().getLocalizedName().toUpperCase();
 				if (level.equals("WARNING")) {
@@ -180,14 +163,60 @@ class CoreTestServer implements TestServer {
         handler.setFormatter(formatter);
         logger.addHandler(handler);
     }
+	
+	@Override
+	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+		return invokeProxy(TestServer.class, proxy, method, args);
+	}
+
+    @ProxyStub
+    public Object invokeProxy(Class<?> proxyClass, Object proxy, Method method, Object[] args) throws Throwable {
+    	List<TestMethodHandler> handlers = proxyHandlers.get(proxyClass);
+    	if (handlers == null) {
+    		return null;
+    	}
+    	
+    	// Iterate backwards so the most recently added handler is called
+    	ListIterator<TestMethodHandler> li = handlers.listIterator(handlers.size());
+    	while(li.hasPrevious()) {
+    		TestMethodHandler handler = li.previous();
+			try {
+				return handler.getClass().getMethod(method.getName(), method.getParameterTypes()).invoke(handler, args);
+			} catch(NoSuchMethodException ex) {
+				continue;
+			}
+    	}
+    	
+    	// Progressively try to find a handler for the class interfaces
+    	for(Class<?> in : proxyClass.getInterfaces()) {
+    		handlers = proxyHandlers.get(in);
+        	if (handlers == null) {
+        		continue;
+        	}
+        	
+        	li = handlers.listIterator(handlers.size());
+        	while(li.hasPrevious()) {
+        		TestMethodHandler handler = li.previous();
+    			try {
+    				return handler.getClass().getMethod(method.getName(), method.getParameterTypes()).invoke(handler, args);
+    			} catch(NoSuchMethodException ex) {
+    				continue;
+    			}
+        	}
+    	}
+    	
+    	if (method.getReturnType().isPrimitive()) {
+    		return DefaultValues.defaultValueFor(method.getReturnType());
+    	}
+    	return null;
+    }
     
 
 
-	@Override
+	@ProxyStub
 	public void reload() {
         pluginManager.clearPlugins();
         commandMap.clearCommands();
-        resetRecipes();
 
         List<BukkitWorker> overdueWorkers = getScheduler().getActiveWorkers();
         for (BukkitWorker worker : overdueWorkers) {
@@ -208,7 +237,7 @@ class CoreTestServer implements TestServer {
 
 	}
 
-	@Override
+	@ProxyStub
     public void loadPlugins() {
         Plugin[] plugins = pluginManager.loadPlugins();
         for (Plugin plugin : plugins) {
@@ -222,7 +251,7 @@ class CoreTestServer implements TestServer {
         }
     }
 
-	@Override
+	@ProxyStub
     public void enablePlugins() {
         Plugin[] plugins = pluginManager.getPlugins();
 
@@ -251,12 +280,12 @@ class CoreTestServer implements TestServer {
         }
     }
 
-	@Override
+	@ProxyStub
     public void disablePlugins() {
         pluginManager.disablePlugins();
     }
 
-	@Override
+	@ProxyStub
 	public void sendPluginMessage(Plugin source, String channel, byte[] message) {
         StandardMessenger.validatePluginMessage(getMessenger(), source, channel, message);
 
@@ -265,7 +294,7 @@ class CoreTestServer implements TestServer {
         }
 	}
 
-	@Override
+	@ProxyStub
 	public Set<String> getListeningPluginChannels() {
         Set<String> result = new HashSet<String>();
 
@@ -276,130 +305,87 @@ class CoreTestServer implements TestServer {
         return result;
 	}
 
-	@Override
+	@ProxyStub
 	public String getName() {
         return serverName;
 	}
 
-	@Override
+	@ProxyStub
 	public String getVersion() {
         return serverVersion;
 	}
 
-	@Override
+	@ProxyStub
 	public String getBukkitVersion() {
         return bukkitVersion;
 	}
 
-	@Override
-	public Player[] _INVALID_getOnlinePlayers() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
+	@ProxyStub
 	public Collection<? extends Player> getOnlinePlayers() {
 		return onlinePlayers;
 	}
 
-	@Override
+	@ProxyStub
 	public int getMaxPlayers() {
         return maxPlayers;
 	}
 
-	@Override
-	public int getPort() {
-		return 0;
-	}
-
-	@Override
+	@ProxyStub
 	public int getViewDistance() {
 		return viewDistance;
 	}
 
-	@Override
+	@ProxyStub
 	public String getIp() {
 		return "localhost";
 	}
+	
+	@ProxyStub
+	public TestServer getServer() {
+		return server;
+	}
 
-	@Override
+	@ProxyStub
 	public String getServerName() {
 		return serverName;
 	}
 
-	@Override
+	@ProxyStub
 	public String getServerId() {
 		return "";
 	}
 
-	@Override
+	@ProxyStub
 	public String getWorldType() {
 		return "DEFAULT";
 	}
 
-	@Override
-	public boolean getGenerateStructures() {
-		return false;
-	}
-
-	@Override
+	@ProxyStub
 	public boolean getAllowEnd() {
 		return allowEnd;
 	}
 
-	@Override
+	@ProxyStub
 	public boolean getAllowNether() {
 		return allowNether;
 	}
 
-	@Override
-	public boolean hasWhitelist() {
-		return false;
-	}
-
-	@Override
-	public void setWhitelist(boolean value) {
-	}
-
-	@Override
+	@ProxyStub
 	public Set<OfflinePlayer> getWhitelistedPlayers() {
 		return new LinkedHashSet<OfflinePlayer>();
 	}
 
-	@Override
-	public void reloadWhitelist() {
-	}
-
-	@Override
+	@ProxyStub
 	public int broadcastMessage(String message) {
-        return broadcast(message, BROADCAST_CHANNEL_USERS);
+        return broadcast(message, "");
 	}
 
-	@Override
+	@ProxyStub
 	public String getUpdateFolder() {
 		return "update";
 	}
 
-	@Override
-	public File getUpdateFolderFile() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public long getConnectionThrottle() {
-		return -1;
-	}
-
-	@Override
-	public int getTicksPerAnimalSpawns() {
-		return -1;
-	}
-
-	@Override
-	public int getTicksPerMonsterSpawns() {
-		return -1;
-	}
-
-	@Override
+	@ProxyStub
 	public Player getPlayer(String name) {
 		for(Player p : onlinePlayers) {
 			if (p.getName() == name) {
@@ -409,7 +395,7 @@ class CoreTestServer implements TestServer {
 		return null;
 	}
 
-	@Override
+	@ProxyStub
 	public Player getPlayerExact(String name) {
 		for(Player p : onlinePlayers) {
 			if (p.getName() == name) {
@@ -419,7 +405,7 @@ class CoreTestServer implements TestServer {
 		return null;
 	}
 
-	@Override
+	@ProxyStub
     @Deprecated
 	public List<Player> matchPlayer(String partialName) {
         Validate.notNull(partialName, "PartialName cannot be null");
@@ -444,7 +430,7 @@ class CoreTestServer implements TestServer {
         return matchedPlayers;
 	}
 
-	@Override
+	@ProxyStub
 	public Player getPlayer(UUID id) {
 		for(Player p : onlinePlayers) {
 			if (p.getUniqueId() == id) {
@@ -454,22 +440,22 @@ class CoreTestServer implements TestServer {
 		return null;
 	}
 
-	@Override
+	@ProxyStub
 	public TestPluginManager getPluginManager() {
 		return pluginManager;
 	}
 
-	@Override
+	@ProxyStub
 	public BukkitScheduler getScheduler() {
         return scheduler;
 	}
 
-	@Override
+	@ProxyStub
 	public ServicesManager getServicesManager() {
         return servicesManager;
 	}
 
-	@Override
+	@ProxyStub
 	public List<World> getWorlds() {
         return new ArrayList<World>(worlds.values());
 	}
@@ -478,28 +464,28 @@ class CoreTestServer implements TestServer {
         return new ArrayList<TestWorld>(worlds.values());
 	}
 
-	@Override
+	@ProxyStub
 	public World createWorld(WorldCreator creator) {
 		throw new UnsupportedOperationException();
 	}
 
-	@Override
+	@ProxyStub
 	public boolean unloadWorld(String name, boolean save) {
 		return true;
 	}
 
-	@Override
+	@ProxyStub
 	public boolean unloadWorld(World world, boolean save) {
 		return true;
 	}
 
-	@Override
+	@ProxyStub
 	public World getWorld(String name) {
         Validate.notNull(name, "Name cannot be null");
         return worlds.get(name.toLowerCase(java.util.Locale.ENGLISH));
 	}
 
-	@Override
+	@ProxyStub
 	public World getWorld(UUID uid) {
         for (World world : worlds.values()) {
             if (world.getUID().equals(uid)) {
@@ -509,22 +495,12 @@ class CoreTestServer implements TestServer {
         return null;
 	}
 
-	@Override
-	public MapView getMap(short id) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public MapView createMap(World world) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
+	@ProxyStub
 	public Logger getLogger() {
         return logger;
 	}
 
-	@Override
+	@ProxyStub
 	public PluginCommand getPluginCommand(String name) {
         Command command = commandMap.getCommand(name);
 
@@ -535,11 +511,7 @@ class CoreTestServer implements TestServer {
         }
 	}
 
-	@Override
-	public void savePlayers() {
-	}
-
-	@Override
+	@ProxyStub
 	public boolean dispatchCommand(CommandSender sender, String commandLine) throws CommandException {
         Validate.notNull(sender, "Sender cannot be null");
         Validate.notNull(commandLine, "CommandLine cannot be null");
@@ -553,17 +525,13 @@ class CoreTestServer implements TestServer {
         return false;
 	}
 
-	@Override
-	public void configureDbConfig(ServerConfig config) {
-	}
-
-	@Override
+	@ProxyStub
 	public boolean addRecipe(Recipe recipe) {
 		recipes.add(recipe);
 		return true;
 	}
 
-	@Override
+	@ProxyStub
 	public List<Recipe> getRecipesFor(ItemStack result) {
         Validate.notNull(result, "Result cannot be null");
 
@@ -582,58 +550,22 @@ class CoreTestServer implements TestServer {
         return results;
 	}
 
-	@Override
+	@ProxyStub
 	public Iterator<Recipe> recipeIterator() {
 		return recipes.iterator();
 	}
 
-	@Override
-	public void clearRecipes() {
-	}
-
-	@Override
-	public void resetRecipes() {
-	}
-
-	@Override
-	public Map<String, String[]> getCommandAliases() {
-		return null;
-	}
-
-	@Override
-	public int getSpawnRadius() {
-		return 0;
-	}
-
-	@Override
-	public void setSpawnRadius(int value) {
-	}
-
-	@Override
-	public boolean getOnlineMode() {
-		return false;
-	}
-
-	@Override
+	@ProxyStub
 	public boolean getAllowFlight() {
 		return allowFlight;
 	}
 
-	@Override
+	@ProxyStub
 	public boolean isHardcore() {
 		return isHardcore;
 	}
 
-	@Override
-	public boolean useExactLoginLocation() {
-		return false;
-	}
-
-	@Override
-	public void shutdown() {
-	}
-
-	@Override
+	@ProxyStub
 	public int broadcast(String message, String permission) {
         int count = 0;
         Set<Permissible> permissibles = getPluginManager().getPermissionSubscriptions(permission);
@@ -649,7 +581,7 @@ class CoreTestServer implements TestServer {
         return count;
 	}
 
-	@Override
+	@ProxyStub
 	public OfflinePlayer getOfflinePlayer(String name) {
 		for(OfflinePlayer p : offlinePlayers) {
 			if (p.getName() == name) {
@@ -659,7 +591,7 @@ class CoreTestServer implements TestServer {
 		return null;
 	}
 
-	@Override
+	@ProxyStub
 	public OfflinePlayer getOfflinePlayer(UUID id) {
 		for(OfflinePlayer p : offlinePlayers) {
 			if (p.getUniqueId() == id) {
@@ -669,209 +601,64 @@ class CoreTestServer implements TestServer {
 		return null;
 	}
 
-	@Override
+	@ProxyStub
 	public Set<String> getIPBans() {
 		return new HashSet<String>();
 	}
 
-	@Override
-	public void banIP(String address) {
-	}
-
-	@Override
-	public void unbanIP(String address) {
-	}
-
-	@Override
+	@ProxyStub
 	public Set<OfflinePlayer> getBannedPlayers() {
 		return new HashSet<OfflinePlayer>();
 	}
 
-	@Override
-	public BanList getBanList(Type type) {
-		return null;
-	}
-
-	@Override
+	@ProxyStub
 	public Set<OfflinePlayer> getOperators() {
 		return new HashSet<OfflinePlayer>();
 	}
 
-	@Override
+	@ProxyStub
 	public GameMode getDefaultGameMode() {
 		return GameMode.SURVIVAL;
 	}
 
-	@Override
-	public void setDefaultGameMode(GameMode mode) {
-	}
-
-	@Override
+	@ProxyStub
 	public ConsoleCommandSender getConsoleSender() {
 		return consoleSender;
 	}
 
-	@Override
-	public File getWorldContainer() {
-		return null;
-	}
-
-	@Override
+	@ProxyStub
 	public OfflinePlayer[] getOfflinePlayers() {
 		return new OfflinePlayer[0];
 	}
 
-	@Override
+	@ProxyStub
 	public Messenger getMessenger() {
         return messenger;
 	}
 
-	@Override
-	public HelpMap getHelpMap() {
-		return null;
-	}
-
-	@Override
-	public Inventory createInventory(InventoryHolder owner, InventoryType type) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Inventory createInventory(InventoryHolder owner, InventoryType type, String title) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Inventory createInventory(InventoryHolder owner, int size) throws IllegalArgumentException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Inventory createInventory(InventoryHolder owner, int size, String title) throws IllegalArgumentException {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public int getMonsterSpawnLimit() {
-		return 0;
-	}
-
-	@Override
-	public int getAnimalSpawnLimit() {
-		return 0;
-	}
-
-	@Override
-	public int getWaterAnimalSpawnLimit() {
-		return 0;
-	}
-
-	@Override
-	public int getAmbientSpawnLimit() {
-		return 0;
-	}
-
-	@Override
+	@ProxyStub
 	public boolean isPrimaryThread() {
 		return true;
 	}
 
-	@Override
+	@ProxyStub
 	public String getMotd() {
 		return "";
 	}
 
-	@Override
+	@ProxyStub
 	public String getShutdownMessage() {
 		return "";
 	}
 
-	@Override
+	@ProxyStub
 	public WarningState getWarningState() {
 		return WarningState.DEFAULT;
 	}
 
-	@Override
+	@ProxyStub
 	public ItemFactory getItemFactory() {
 		return itemFactory;
-	}
-
-	@Override
-	public ScoreboardManager getScoreboardManager() {
-		return null;
-	}
-
-	@Override
-	public CachedServerIcon getServerIcon() {
-		return null;
-	}
-
-	@Override
-	public CachedServerIcon loadServerIcon(File file) throws IllegalArgumentException, Exception {
-		return null;
-	}
-
-	@Override
-	public CachedServerIcon loadServerIcon(BufferedImage image) throws IllegalArgumentException, Exception {
-		return null;
-	}
-
-	@Override
-	public void setIdleTimeout(int threshold) {
-	}
-
-	@Override
-	public int getIdleTimeout() {
-		return 0;
-	}
-
-	@Override
-	public ChunkData createChunkData(World world) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public BossBar createBossBar(String title, BarColor color, BarStyle style, BarFlag... flags) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public UnsafeValues getUnsafe() {
-		return null;
-	}
-	
-    private final Spigot spigot = new Spigot()
-    {
-
-        @Override
-        public YamlConfiguration getConfig()
-        {
-            return configuration;
-        }
-
-        @Override
-        public void restart() {
-            restart();
-        }
-
-        @Override
-        public void broadcast(BaseComponent component) {
-            for (Player player : getOnlinePlayers()) {
-                player.spigot().sendMessage(component);
-            }
-        }
-
-        @Override
-        public void broadcast(BaseComponent... components) {
-            for (Player player : getOnlinePlayers()) {
-                player.spigot().sendMessage(components);
-            }
-        }
-    };
-
-	@Override
-	public Spigot spigot() {
-		return spigot;
 	}
 	
     public World createTestWorld(WorldCreator creator) {    	
@@ -939,12 +726,12 @@ class CoreTestServer implements TestServer {
     	return file;
     }
     
-    @Override
+    @ProxyStub
     public ProxyFactory getTestFactory() {
     	return testFactory;
     }
 
-    @Override
+    @ProxyStub
     public void addProxyHandler(Class<?> clazz, TestMethodHandler handler) {
     	List<TestMethodHandler> handlers = proxyHandlers.get(clazz);
     	if (handlers == null) {
@@ -955,53 +742,19 @@ class CoreTestServer implements TestServer {
     		handlers.add(handler);
     	}
     }
-
-    @Override
-    public Object invokeProxy(Class<?> proxyClass, Object proxy, Method method, Object[] args) throws Throwable {
-    	List<TestMethodHandler> handlers = proxyHandlers.get(proxyClass);
-    	if (handlers == null) {
-    		return null;
-    	}
-    	
-    	// Iterate backwards so the most recently added handler is called
-    	ListIterator<TestMethodHandler> li = handlers.listIterator(handlers.size());
-    	while(li.hasPrevious()) {
-    		TestMethodHandler handler = li.previous();
-			try {
-				return handler.getClass().getMethod(method.getName(), method.getParameterTypes()).invoke(handler, args);
-			} catch(NoSuchMethodException ex) {
-				continue;
-			}
-    	}
-    	
-    	// Progressively try to find a handler for the class interfaces
-    	for(Class<?> in : proxyClass.getInterfaces()) {
-    		handlers = proxyHandlers.get(in);
-        	if (handlers == null) {
-        		continue;
-        	}
-        	
-        	li = handlers.listIterator(handlers.size());
-        	while(li.hasPrevious()) {
-        		TestMethodHandler handler = li.previous();
-    			try {
-    				return handler.getClass().getMethod(method.getName(), method.getParameterTypes()).invoke(handler, args);
-    			} catch(NoSuchMethodException ex) {
-    				continue;
-    			}
-        	}
-    	}
-    	
-    	return null;
-    }
     
-	@Override
+	@ProxyStub
 	public void log(Level level, String msg, Object... args) {
 		logger.log(level, String.format(msg, args));
 	}
 
-	@Override
+	@ProxyStub
 	public void log(String msg, Object... args) {
 		logger.log(Level.INFO, String.format(msg, args));
+	}
+	
+	@Override
+	public String toString() {
+		return "CoreTestServer - " + getVersion();
 	}
 }

@@ -13,7 +13,7 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginLoader;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public interface TestServer extends Server {
+public interface TestServer extends Server, ServerProxy {
 	
 	void configureLogger(boolean useLogger);
 	

@@ -74,6 +74,7 @@ class CoreTestPlayer extends ProxyMockBase<TestPlayer> {
 		return TestBukkit.getServer();
 	}
 
+	@ProxyStub
 	public boolean connect() {
     	final InetSocketAddress address = new InetSocketAddress("localhost", 25565);
     	server.log("UUID of player %s is %s", player.getName(), uid.toString());
@@ -99,6 +100,7 @@ class CoreTestPlayer extends ProxyMockBase<TestPlayer> {
 		return true;
 	}
 
+	@ProxyStub
 	public void disconnect() {
 		TestBukkit.getServer().getOnlinePlayers().remove(this);
 		
@@ -106,28 +108,43 @@ class CoreTestPlayer extends ProxyMockBase<TestPlayer> {
     	TestBukkit.getPluginManager().callEvent(quitEvent);
     	server.log("%s left the game", player.getName());
 	}
-	
+
+	@ProxyStub
     public boolean runCommand(String commandLine) {
     	getServer().getLogger().log(Level.INFO, String.format("Running player command '%s'", commandLine));
     	return getServer().dispatchCommand(player, commandLine);
     }
-    
+
+	@ProxyStub
     public void sendMessage(String message) {
     	if (message != null) {
         	messages.add(message);
     	}
     }
-    
+
+	@ProxyStub
     public void sendMessage(String[] messages) {
     	for(String s : messages) {
     		sendMessage(s);
     	}
     }
-    
+
+	@ProxyStub
     public Queue<String> getMessages() {
     	return messages;
     }
-    
+
+	@ProxyStub
+	public String pollMessage() {
+		return messages.poll();
+	}
+	
+	@ProxyStub
+	public void clearMessages() {
+		messages.clear();
+	}
+
+	@ProxyStub
     public PlayerInventory getInventory() {
     	return inventory;
     }

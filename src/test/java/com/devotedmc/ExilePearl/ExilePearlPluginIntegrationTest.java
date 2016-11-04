@@ -96,66 +96,79 @@ public class ExilePearlPluginIntegrationTest {
 	 */
 	@Test
 	public void testPlayerCommands() {
+		player1.clearMessages();
+		
 		assertTrue(player1.runCommand("ep reload"));
-		verify(player1).sendMessage(TextUtil.parse(Lang.commandToManyArgs, "reload"));
+		assertTooManyArgs(player1, "reload");
 		
 		assertTrue(player1.runCommand("ep check"));
-		verify(player1).sendMessage(TextUtil.parse(Lang.commandToManyArgs, "check"));
+		assertTooManyArgs(player1, "check");
 		
 		assertTrue(player1.runCommand("ep decay"));
-		verify(player1).sendMessage(TextUtil.parse(Lang.commandToManyArgs, "decay"));
+		assertTooManyArgs(player1, "decay");
 		
 		assertTrue(player1.runCommand("ep exileany"));
-		verify(player1).sendMessage(TextUtil.parse(Lang.commandToManyArgs, "exileany"));
+		assertTooManyArgs(player1, "exileany");
 		
 		assertTrue(player1.runCommand("ep freeany"));
-		verify(player1).sendMessage(TextUtil.parse(Lang.commandToManyArgs, "freeany"));
+		assertTooManyArgs(player1, "freeany");
 		
 		assertTrue(player1.runCommand("ep list"));
-		verify(player1).sendMessage(TextUtil.parse(Lang.commandToManyArgs, "list"));
+		assertTooManyArgs(player1, "list");
 		
 		assertTrue(player1.runCommand("ep sethealth"));
-		verify(player1).sendMessage(TextUtil.parse(Lang.commandToManyArgs, "sethealth"));
+		assertTooManyArgs(player1, "sethealth");
 		
 		assertTrue(player1.runCommand("ep setkiller"));
-		verify(player1).sendMessage(TextUtil.parse(Lang.commandToManyArgs, "setkiller"));
+		assertTooManyArgs(player1, "setkiller");
 		
 		assertTrue(player1.runCommand("ep settype"));
-		verify(player1).sendMessage(TextUtil.parse(Lang.commandToManyArgs, "settype"));
+		assertTooManyArgs(player1, "settype");
 		
 		assertTrue(player1.runCommand("ep config"));
-		verify(player1).sendMessage(TextUtil.parse(Lang.commandToManyArgs, "config"));
+		assertTooManyArgs(player1, "config");
 		
 		assertTrue(player1.runCommand("ep config list"));
-		verify(player1).sendMessage(TextUtil.parse(Lang.commandToManyArgs, "config list"));
+		assertTooManyArgs(player1, "config list");
 		
 		assertTrue(player1.runCommand("ep config load"));
-		verify(player1).sendMessage(TextUtil.parse(Lang.commandToManyArgs, "config load"));
+		assertTooManyArgs(player1, "config load");
 		
 		assertTrue(player1.runCommand("ep config save"));
-		verify(player1).sendMessage(TextUtil.parse(Lang.commandToManyArgs, "config save"));
+		assertTooManyArgs(player1, "config save");
 		
 		assertTrue(player1.runCommand("ep config set"));
-		verify(player1).sendMessage(TextUtil.parse(Lang.commandToManyArgs, "config set"));
+		assertTooManyArgs(player1, "config set");
 		
+		player1.clearMessages();
 		
 		// These should pass
 		assertTrue(player1.runCommand("ep broadcast"));
-		verify(player1, times(0)).sendMessage(TextUtil.parse(Lang.commandToManyArgs, "broadcast"));
+		assertNotTooManyArgs(player1, "config broadcast");
 		
 		assertTrue(player1.runCommand("ep confirm"));
-		verify(player1, times(0)).sendMessage(TextUtil.parse(Lang.commandToManyArgs, "broadcast"));
+		assertNotTooManyArgs(player1, "config confirm");
 		
 		assertTrue(player1.runCommand("ep silence"));
-		verify(player1, times(0)).sendMessage(TextUtil.parse(Lang.commandToManyArgs, "broadcast"));
+		assertNotTooManyArgs(player1, "config silence");
 		
 		assertTrue(player1.runCommand("ep free"));
-		verify(player1, times(0)).sendMessage(TextUtil.parse(Lang.commandToManyArgs, "broadcast"));
+		assertNotTooManyArgs(player1, "config free");
 		
 		assertTrue(player1.runCommand("ep locate"));
-		verify(player1, times(0)).sendMessage(TextUtil.parse(Lang.commandToManyArgs, "suicide"));
+		assertNotTooManyArgs(player1, "config locate");
 		
 		assertTrue(player1.runCommand("suicide"));
-		verify(player1, times(0)).sendMessage(TextUtil.parse(Lang.commandToManyArgs, "broadcast"));
+		assertNotTooManyArgs(player1, "config suicide");
+	}
+	
+	private void assertTooManyArgs(TestPlayer player, String cmd) {
+		assertEquals(TextUtil.parse(Lang.commandToManyArgs, cmd), player.pollMessage());
+		player.clearMessages();
+	}
+	
+	private void assertNotTooManyArgs(TestPlayer player, String cmd) {
+		assertNotSame(TextUtil.parse(Lang.commandToManyArgs, cmd), player.pollMessage());
+		player.clearMessages();
 	}
 }

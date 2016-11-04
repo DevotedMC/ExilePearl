@@ -7,16 +7,23 @@ import java.lang.reflect.Proxy;
 import com.devotedmc.testbukkit.ProxyMock;
 import com.devotedmc.testbukkit.TestBukkit;
 import com.devotedmc.testbukkit.TestMethodHandler;
+import com.devotedmc.testbukkit.TestServer;
 
 class ProxyMockBase<T> implements ProxyMock<T>, InvocationHandler, TestMethodHandler {
 	
+	private final TestServer server;
 	private final Class<T> proxyType;
 	private final T proxyTarget;
 	
 	public ProxyMockBase(final Class<T> proxyType) {
 		this.proxyType = proxyType;
 		proxyTarget = createProxyInstance();
-		TestBukkit.getServer().addProxyHandler(proxyType, this);
+		if (proxyType == TestServer.class) {
+			server = TestServer.class.cast(proxyTarget);
+		} else {
+			server = TestBukkit.getServer();
+			server.addProxyHandler(proxyType, this);
+		}
 	}
 
 	/**
@@ -28,7 +35,7 @@ class ProxyMockBase<T> implements ProxyMock<T>, InvocationHandler, TestMethodHan
 	}
 
 	@Override
-	public final Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 		return TestBukkit.getServer().invokeProxy(proxyType, proxy, method, args);
 	}
 	

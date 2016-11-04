@@ -13,7 +13,6 @@ public interface TestPlayer extends Player {
 	 */
 	public boolean connect();
 	
-	
 	/**
 	 * Disconnects the player from the server if he is connected
 	 */
@@ -31,4 +30,15 @@ public interface TestPlayer extends Player {
 	 * @return The message queue
 	 */
 	Queue<String> getMessages();
+	
+	/**
+	 * Gets the last message sent to the player and removes it from the message queue.
+	 * @return The last message sent to the player
+	 */
+	String pollMessage();
+	
+	/**
+	 * Clears the stored messages
+	 */
+	void clearMessages();
 }
