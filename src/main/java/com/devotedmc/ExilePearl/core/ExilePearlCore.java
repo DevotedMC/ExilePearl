@@ -64,9 +64,9 @@ import com.wimbli.WorldBorder.WorldBorder;
 import isaac.bastion.Bastion;
 import isaac.bastion.BastionBlock;
 import isaac.bastion.manager.BastionBlockManager;
-import isaac.bastion.util.QTBox;
 import net.minelink.ctplus.CombatTagPlus;
 import net.minelink.ctplus.compat.api.NpcIdentity;
+import vg.civcraft.mc.civmodcore.locations.QTBox;
 import vg.civcraft.mc.civmodcore.util.Guard;
 import vg.civcraft.mc.namelayer.NameAPI;
 
@@ -610,7 +610,7 @@ final class ExilePearlCore implements ExilePearlApi {
 		try {
 			final BastionBlockManager manager = Bastion.getBastionManager();
 			
-			Set<? extends QTBox> possible  = manager.set.forLocation(player.getLocation());
+			Set<? extends QTBox> possible  = manager.getBlockingBastions(player.getLocation());
 			@SuppressWarnings("unchecked")
 			List<BastionBlock> bastions = new LinkedList<BastionBlock>((Set<BastionBlock>)possible);
 			for (BastionBlock bastion : bastions) {

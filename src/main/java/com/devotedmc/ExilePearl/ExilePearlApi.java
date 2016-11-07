@@ -141,7 +141,7 @@ public interface ExilePearlApi extends Plugin, PearlAccess, PearlLogger, PlayerP
 	
 	/**
 	 * Gets the clock instance
-	 * @return
+	 * @return the clock instance
 	 */
 	Clock getClock();
 }

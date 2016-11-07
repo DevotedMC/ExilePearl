@@ -31,6 +31,7 @@ import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
@@ -69,9 +70,7 @@ public class ExileListener extends RuleListener implements Configurable {
 	
 	/**
 	 * Creates a new ExileListener instance
-	 * @param logger The logger instance
-	 * @param pearls The pearl manger
-	 * @param config The plugin configuration
+	 * @param pearlApi The PearlApi instance
 	 */
 	public ExileListener(final ExilePearlApi pearlApi) {
 		super(pearlApi);
@@ -93,6 +92,22 @@ public class ExileListener extends RuleListener implements Configurable {
 			e.getPearl().getPlayer().setBedSpawnLocation(null, true);
 		}
 	}
+	
+
+	/**
+	 * Clears the bed of exiled players when they log in
+	 * @param e The event
+	 */
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void onPlayerJoin(PlayerJoinEvent e) {
+		if (config.canPerform(ExileRule.USE_BED)) {
+			return;
+		}
+		if (pearlApi.isPlayerExiled(e.getPlayer())) {
+			e.getPlayer().setBedSpawnLocation(null, true);
+		}
+	}
+	
 
 	/**
 	 * Prevent exiled players from using a bed
