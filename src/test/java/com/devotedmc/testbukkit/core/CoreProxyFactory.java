@@ -25,6 +25,7 @@ public class CoreProxyFactory implements ProxyFactory {
 		registerProxyInternal(CoreTestWorld.class);
 		registerProxyInternal(CoreTestChunk.class);
 		registerProxyInternal(CoreTestBlockState.class);
+		registerProxyInternal(CoreTestInventory.class);
 	}
 	
 	public CoreProxyFactory() {

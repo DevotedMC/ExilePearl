@@ -12,6 +12,7 @@ import org.bukkit.block.Chest;
 import org.bukkit.block.CommandBlock;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.block.Dispenser;
+import org.bukkit.block.DoubleChest;
 import org.bukkit.block.Dropper;
 import org.bukkit.block.EndGateway;
 import org.bukkit.block.FlowerPot;
@@ -178,7 +179,25 @@ public class CoreTestBlock extends ProxyMockBase<TestBlock> {
         default:
         	break;
         }
-        
+
+        switch (getType()) {
+		case CHEST:
+		case TRAPPED_CHEST:
+			int x = getX();
+			int y = getY();
+			int z = getZ();
+			TestWorld world = getWorld();
+			int id = getType().getId();
+			
+			if (world.getBlockTypeIdAt(x - 1, y, z) == id
+					|| world.getBlockTypeIdAt(x + 1, y, z) == id
+					|| world.getBlockTypeIdAt(x, y, z - 1) == id
+					|| world.getBlockTypeIdAt(x, y, z + 1) == id) {
+		    	return createInstance(TestBlockState.class, getProxy(), stateClass, DoubleChest.class);
+			}
+		default:
+			break;
+        }
     	return createInstance(TestBlockState.class, getProxy(), stateClass);
     }
 	
