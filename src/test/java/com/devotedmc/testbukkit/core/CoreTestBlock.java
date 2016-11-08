@@ -22,6 +22,7 @@ import org.bukkit.block.NoteBlock;
 import org.bukkit.block.Sign;
 import org.bukkit.block.Skull;
 
+import com.devotedmc.testbukkit.DataMap;
 import com.devotedmc.testbukkit.TestBlock;
 import com.devotedmc.testbukkit.TestBlockState;
 import com.devotedmc.testbukkit.TestChunk;
@@ -40,6 +41,7 @@ public class CoreTestBlock extends ProxyMockBase<TestBlock> {
 	private final int z;
 	private Material type;
 	private byte rawData;
+	private final DataMap testData = new DataMap();
 	
 	public CoreTestBlock(TestChunk chunk, int x, int y, int z) {
 		super(TestBlock.class);
@@ -234,4 +236,9 @@ public class CoreTestBlock extends ProxyMockBase<TestBlock> {
 
         return null;
     }
+
+	@ProxyStub
+	public DataMap getTestData() {
+		return testData;
+	}
 }

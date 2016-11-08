@@ -1,24 +1,23 @@
 package com.devotedmc.testbukkit.core;
 
-import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
-import org.bukkit.block.DoubleChest;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.*;
 
+import com.devotedmc.testbukkit.DataMap;
+import com.devotedmc.testbukkit.TestBlockState;
 import com.devotedmc.testbukkit.TestInventory;
 import com.devotedmc.testbukkit.annotation.ProxyStub;
 import com.devotedmc.testbukkit.annotation.ProxyTarget;
@@ -29,7 +28,7 @@ public class CoreTestInventory extends ProxyMockBase<TestInventory> {
 	private InventoryHolder holder;
 	private InventoryType type;
 	private int size;
-	private LinkedHashMap<Integer, ItemStack> items;
+	private final Map<Integer, ItemStack> items;
 	private List<HumanEntity> viewers = new LinkedList<HumanEntity>();
 	
 	public CoreTestInventory(final InventoryHolder holder, final InventoryType type, Class<? extends Inventory> interfaces) {
@@ -38,7 +37,19 @@ public class CoreTestInventory extends ProxyMockBase<TestInventory> {
 		this.holder = holder;
 		this.type = type;
 		this.size = type.getDefaultSize();
-		this.items = new LinkedHashMap<Integer, ItemStack>();
+		
+		if (holder instanceof TestBlockState) {
+			DataMap testData = ((TestBlockState)holder).getBlock().getTestData();
+			
+			if (testData.containsField("inventory.items")) {
+				this.items = testData.getAs("inventory.items");
+			} else {
+				this.items = new LinkedHashMap<Integer, ItemStack>();
+				testData.put("inventory.items", this.items);
+			}
+		} else {
+			this.items = new LinkedHashMap<Integer, ItemStack>();
+		}
 	}
 	
 	public CoreTestInventory(final InventoryHolder holder, final InventoryType type) {
@@ -256,85 +267,12 @@ public class CoreTestInventory extends ProxyMockBase<TestInventory> {
 
 	@ProxyStub
 	public InventoryHolder getHolder() {
-		if (getProxy() instanceof DoubleChestInventory) {
-			return new DoubleChest((DoubleChestInventory)getProxy());
-		}
-		
 		return holder;
 	}
 
 	@ProxyStub
 	public Location getLocation() {
 		return ((BlockState)holder).getLocation();
-	}
-
-
-	@ProxyStub(DoubleChestInventory.class)
-	public Inventory getLeftSide() {
-		return getDoubleSide(true);
-	}
-	
-	@ProxyStub(DoubleChestInventory.class)
-	public Inventory getRightSide() {
-		return getDoubleSide(false);
-	}
-	
-	
-	@SuppressWarnings("deprecation")
-	private Inventory getDoubleSide(boolean leftSide) {
-		Block b = ((BlockState)holder).getBlock();
-		int x = b.getX();
-		int y = b.getY();
-		int z = b.getZ();
-		World world = b.getWorld();
-
-		int id;
-		if (world.getBlockTypeIdAt(x, y, z) == Material.CHEST.getId()) {
-			id = Material.CHEST.getId();
-		} else if (world.getBlockTypeIdAt(x, y, z) == Material.TRAPPED_CHEST.getId()) {
-			id = Material.TRAPPED_CHEST.getId();
-		} else {
-			return null;
-		}
-		
-		if (world.getBlockTypeIdAt(x - 1, y, z) == id) {
-			if (leftSide) {
-				return getInventoryFromBlock(world.getBlockAt(x - 1, y, z));
-			} else {
-				return getProxy();
-			}
-		}
-		if (world.getBlockTypeIdAt(x + 1, y, z) == id) {
-			if (leftSide) {
-				return getProxy();
-			} else {
-				return getInventoryFromBlock(world.getBlockAt(x + 1, y, z));
-			}
-		}
-		if (world.getBlockTypeIdAt(x, y, z - 1) == id) {
-			if (leftSide) {
-				return getInventoryFromBlock(world.getBlockAt(x, y, z - 1));
-			} else {
-				return getProxy();
-			}
-		}
-		if (world.getBlockTypeIdAt(x, y, z + 1) == id) {
-			if (leftSide) {
-				return getProxy();
-			} else {
-				return getInventoryFromBlock(world.getBlockAt(x, y, z + 1));
-			}
-		}
-		
-		return null;
-	}
-	
-	private Inventory getInventoryFromBlock(Block b) {
-		BlockState state = b.getState();
-		if (state instanceof InventoryHolder) {
-			return ((InventoryHolder)state).getInventory();
-		}
-		return null;
 	}
 	
     @Override
@@ -345,13 +283,8 @@ public class CoreTestInventory extends ProxyMockBase<TestInventory> {
         if (o == null) {
             return false;
         }
-        
-        if (o.getClass() == getProxy().getClass()) {
-        	Object handler = Proxy.getInvocationHandler(o);
-        	if (handler == this) {
-        		o = handler;
-        	}
-        }
+
+        o = getEqualsProxy(o);
         
         if (getClass() != o.getClass()) {
         	return false;

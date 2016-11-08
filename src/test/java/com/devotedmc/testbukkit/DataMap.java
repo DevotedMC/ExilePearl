@@ -210,6 +210,11 @@ public class DataMap implements Map<String, Object> {
         Object value = get(key);
         return value == null ? defaultValue : (Boolean) value;
     }
+    
+    @SuppressWarnings("unchecked")
+	public <T> T getAs(final String key) {
+    	return (T)get(key);
+    }
 
     /**
      * Gets the value of the given key as a Date.

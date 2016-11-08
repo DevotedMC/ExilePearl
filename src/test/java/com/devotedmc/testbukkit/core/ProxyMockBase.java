@@ -84,4 +84,14 @@ class ProxyMockBase<T> implements ProxyMock<T>, InvocationHandler {
 			throw new RuntimeException("Unable to create proxy for type " + proxyType.getSimpleName(), ex);
 		}
 	}
+	
+    protected Object getEqualsProxy(Object o) {        
+        if (Proxy.isProxyClass(o.getClass())) {
+        	Object handler = Proxy.getInvocationHandler(o);
+        	if (this.equals(handler)) {
+        		o = handler;
+        	}
+        }
+        return o;
+    }
 }

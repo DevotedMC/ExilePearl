@@ -32,4 +32,6 @@ public interface TestBlock extends Block {
 
 	@Override
     BlockFace getFace(final Block block);
+	
+	DataMap getTestData();
 }

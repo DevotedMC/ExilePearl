@@ -9,11 +9,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.DoubleChestInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
 import com.devotedmc.testbukkit.TestBlock;
+import com.devotedmc.testbukkit.TestBlockState;
 import com.devotedmc.testbukkit.TestBukkit;
 import com.devotedmc.testbukkit.TestBukkitRunner;
 import com.devotedmc.testbukkit.TestPlayer;
@@ -60,15 +62,28 @@ public class TestTest<T> {
 		b2.setType(Material.CHEST);
 		assertTrue(b2.getState() instanceof InventoryHolder);
 		InventoryHolder holder2 = (InventoryHolder)b2.getState();
-		Inventory inv2 = holder1.getInventory();
+		Inventory inv2 = holder2.getInventory();
 		assertTrue(inv2 instanceof DoubleChestInventory);
 		DoubleChestInventory dInv2 = (DoubleChestInventory)inv2;
 		assertTrue(inv2.getHolder() instanceof DoubleChest);
 		
+		TestBlockState s1 = b1.getState();
+		TestBlockState s2 = b1.getState();
+		assertEquals(s1, s2);
+		
 		Inventory left = dInv2.getLeftSide();
 		Inventory right = dInv2.getRightSide();
-		assertEquals(left, inv2);
-		assertEquals(right, inv1);
+		assertNotSame(left, right);
+		assertEquals(left, inv1);
+		
+		ItemStack is = new ItemStack(Material.DIAMOND);
+		assertFalse(dInv2.contains(is));
+		left.setItem(5, is);
+		assertTrue(dInv2.contains(is));
+		left.clear();
+		assertFalse(dInv2.contains(is));
+		right.setItem(5, is);
+		assertTrue(dInv2.contains(is));
 	}
 	
 	@ProxyStub(Player.class)
