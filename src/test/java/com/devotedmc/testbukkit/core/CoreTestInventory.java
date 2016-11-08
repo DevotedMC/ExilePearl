@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.DoubleChest;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.*;
@@ -27,8 +28,8 @@ public class CoreTestInventory extends ProxyMockBase<TestInventory> {
 	private LinkedHashMap<Integer, ItemStack> items;
 	private List<HumanEntity> viewers = new LinkedList<HumanEntity>();
 	
-	public CoreTestInventory(final InventoryHolder holder, final InventoryType type, Class<? extends Inventory> holderType) {
-		super(TestInventory.class, holderType);
+	public CoreTestInventory(final InventoryHolder holder, final InventoryType type, Class<? extends Inventory> interfaces) {
+		super(TestInventory.class, interfaces);
 		
 		this.holder = holder;
 		this.type = type;
@@ -251,6 +252,10 @@ public class CoreTestInventory extends ProxyMockBase<TestInventory> {
 
 	@ProxyStub
 	public InventoryHolder getHolder() {
+		if (getProxy() instanceof DoubleChestInventory) {
+			return new DoubleChest((DoubleChestInventory)getProxy());
+		}
+		
 		return holder;
 	}
 
@@ -258,4 +263,15 @@ public class CoreTestInventory extends ProxyMockBase<TestInventory> {
 	public Location getLocation() {
 		return ((BlockState)holder).getLocation();
 	}
+
+	/*
+	@ProxyStub(DoubleChestInventory.class)
+	public Inventory getLeftSide() {
+		return null; // TODO
+	}
+	
+	@ProxyStub(DoubleChestInventory.class)
+	public Inventory getRightSide() {
+		return null; // TODO
+	} */
 }

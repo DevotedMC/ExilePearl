@@ -1,11 +1,8 @@
 package com.devotedmc.testbukkit.core;
 
-import java.util.Arrays;
-
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.*;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.BeaconInventory;
@@ -14,11 +11,11 @@ import org.bukkit.inventory.DoubleChestInventory;
 import org.bukkit.inventory.EnchantingInventory;
 import org.bukkit.inventory.FurnaceInventory;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.material.MaterialData;
 
 import com.devotedmc.testbukkit.TestBlock;
 import com.devotedmc.testbukkit.TestBlockState;
+import com.devotedmc.testbukkit.TestInventory;
 import com.devotedmc.testbukkit.TestLocation;
 import com.devotedmc.testbukkit.TestWorld;
 import com.devotedmc.testbukkit.annotation.ProxyStub;
@@ -28,16 +25,13 @@ import com.devotedmc.testbukkit.annotation.ProxyTarget;
 @ProxyTarget(TestBlockState.class)
  class CoreTestBlockState extends ProxyMockBase<TestBlockState> {
 	
-	private final Class<? extends BlockState> stateType;
 	private TestBlock block;
 	private MaterialData data;
 
-	public CoreTestBlockState(TestBlock block, Class<? extends BlockState> stateType, Class<?> interfaces) {
-		// TODO interfaces
-		super(TestBlockState.class, stateType);
+	public CoreTestBlockState(TestBlock block, Class<?> interfaces) {
+ 		super(TestBlockState.class, interfaces);
 		
 		this.block = block;
-		this.stateType = stateType;
 		createData(block.getData());
 	}
 	
@@ -166,10 +160,6 @@ import com.devotedmc.testbukkit.annotation.ProxyTarget;
 	
 
     public Inventory getInventory() {		
-		if (!Arrays.asList(stateType.getInterfaces()).contains(InventoryHolder.class)) {
-			return null;
-		}
-		
 		InventoryType invType = null;
 		Class<? extends Inventory> invClass = Inventory.class;
 		
@@ -229,14 +219,6 @@ import com.devotedmc.testbukkit.annotation.ProxyTarget;
 			invClass = FurnaceInventory.class;
 			break;
 		case CHEST:
-			break;
-		default:
-			break;
-		}
-
-		Inventory inventory = createInstance(Inventory.class, getProxy(), invType, invClass);
-
-		if (invType == InventoryType.CHEST) {
 			int x = getX();
 			int y = getY();
 			int z = getZ();
@@ -247,26 +229,21 @@ import com.devotedmc.testbukkit.annotation.ProxyTarget;
 				id = Material.CHEST.getId();
 			} else if (world.getBlockTypeIdAt(x, y, z) == Material.TRAPPED_CHEST.getId()) {
 				id = Material.TRAPPED_CHEST.getId();
-			} else { 
-				throw new IllegalStateException("TestChest is not a chest but is instead " + world.getBlockAt(x, y, z));
+			} else {
+				break;
 			}
 			
-			if (world.getBlockTypeIdAt(x - 1, y, z) == id) {
-				Inventory left = createInstance(Inventory.class, world.getBlockAt(x -1, y, z).getState(), invType, invClass);
-				Inventory right = inventory;
-				
-				inventory = createInstance(Inventory.class, world.getBlockAt(x -1, y, z).getState(), invType, DoubleChestInventory.class);
+			if (world.getBlockTypeIdAt(x - 1, y, z) == id
+					|| world.getBlockTypeIdAt(x + 1, y, z) == id
+					|| world.getBlockTypeIdAt(x, y, z - 1) == id
+					|| world.getBlockTypeIdAt(x, y, z + 1) == id) {
+				invClass = DoubleChestInventory.class;
 			}
-			if (world.getBlockTypeIdAt(x + 1, y, z) == id) {
-				// TODO
-			}
-			if (world.getBlockTypeIdAt(x, y, z - 1) == id) {
-				// TODO
-			}
-			if (world.getBlockTypeIdAt(x, y, z + 1) == id) {
-				// TODO
-			}
+			break;
+		default:
+			break;
 		}
-		return inventory;
+
+		return createInstance(TestInventory.class, getProxy(), invType, invClass);
     }
 }
