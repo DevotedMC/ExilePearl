@@ -64,6 +64,11 @@ public class TestTest<T> {
 		assertTrue(inv2 instanceof DoubleChestInventory);
 		DoubleChestInventory dInv2 = (DoubleChestInventory)inv2;
 		assertTrue(inv2.getHolder() instanceof DoubleChest);
+		
+		Inventory left = dInv2.getLeftSide();
+		Inventory right = dInv2.getRightSide();
+		assertEquals(left, inv2);
+		assertEquals(right, inv1);
 	}
 	
 	@ProxyStub(Player.class)

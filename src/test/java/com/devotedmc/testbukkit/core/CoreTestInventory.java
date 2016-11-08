@@ -1,5 +1,6 @@
 package com.devotedmc.testbukkit.core;
 
+import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -7,8 +8,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.entity.HumanEntity;
@@ -264,14 +268,102 @@ public class CoreTestInventory extends ProxyMockBase<TestInventory> {
 		return ((BlockState)holder).getLocation();
 	}
 
-	/*
+
 	@ProxyStub(DoubleChestInventory.class)
 	public Inventory getLeftSide() {
-		return null; // TODO
+		return getDoubleSide(true);
 	}
 	
 	@ProxyStub(DoubleChestInventory.class)
 	public Inventory getRightSide() {
-		return null; // TODO
-	} */
+		return getDoubleSide(false);
+	}
+	
+	
+	@SuppressWarnings("deprecation")
+	private Inventory getDoubleSide(boolean leftSide) {
+		Block b = ((BlockState)holder).getBlock();
+		int x = b.getX();
+		int y = b.getY();
+		int z = b.getZ();
+		World world = b.getWorld();
+
+		int id;
+		if (world.getBlockTypeIdAt(x, y, z) == Material.CHEST.getId()) {
+			id = Material.CHEST.getId();
+		} else if (world.getBlockTypeIdAt(x, y, z) == Material.TRAPPED_CHEST.getId()) {
+			id = Material.TRAPPED_CHEST.getId();
+		} else {
+			return null;
+		}
+		
+		if (world.getBlockTypeIdAt(x - 1, y, z) == id) {
+			if (leftSide) {
+				return getInventoryFromBlock(world.getBlockAt(x - 1, y, z));
+			} else {
+				return getProxy();
+			}
+		}
+		if (world.getBlockTypeIdAt(x + 1, y, z) == id) {
+			if (leftSide) {
+				return getProxy();
+			} else {
+				return getInventoryFromBlock(world.getBlockAt(x + 1, y, z));
+			}
+		}
+		if (world.getBlockTypeIdAt(x, y, z - 1) == id) {
+			if (leftSide) {
+				return getInventoryFromBlock(world.getBlockAt(x, y, z - 1));
+			} else {
+				return getProxy();
+			}
+		}
+		if (world.getBlockTypeIdAt(x, y, z + 1) == id) {
+			if (leftSide) {
+				return getProxy();
+			} else {
+				return getInventoryFromBlock(world.getBlockAt(x, y, z + 1));
+			}
+		}
+		
+		return null;
+	}
+	
+	private Inventory getInventoryFromBlock(Block b) {
+		BlockState state = b.getState();
+		if (state instanceof InventoryHolder) {
+			return ((InventoryHolder)state).getInventory();
+		}
+		return null;
+	}
+	
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null) {
+            return false;
+        }
+        
+        if (o.getClass() == getProxy().getClass()) {
+        	Object handler = Proxy.getInvocationHandler(o);
+        	if (handler == this) {
+        		o = handler;
+        	}
+        }
+        
+        if (getClass() != o.getClass()) {
+        	return false;
+        }
+
+        CoreTestInventory other = (CoreTestInventory) o;
+
+		return new EqualsBuilder()
+				.append(holder, other.holder)
+				.append(type, other.type)
+				.append(size, other.size)
+				.append(items, other.items)
+				.isEquals();
+    }
 }

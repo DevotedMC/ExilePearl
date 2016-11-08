@@ -13,7 +13,7 @@ class ProxyMockBase<T> implements ProxyMock<T>, InvocationHandler {
 	private final TestServer server;
 	private final Class<T> proxyType;
 	private final Class<?>[] interfaces;
-	private T proxyTarget;
+	private final T proxyTarget;
 	
 	public ProxyMockBase(final Class<T> proxyType, final Class<?>... interfaces) {
 		this.proxyType = proxyType;
@@ -35,20 +35,19 @@ class ProxyMockBase<T> implements ProxyMock<T>, InvocationHandler {
 		return proxyTarget;
 	}
 	
+	/**
+	 * Gets the proxy type
+	 */
+	public final Class<?> getProxyType() {
+		return proxyType;
+	}
+	
 	protected TestServer getServer() {
 		return server;
 	}
 	
 	protected <P> P createInstance(Class<P> clazz, Object... args) {
 		return server.getProxyFactory().createInstance(clazz, args);
-	}
-	
-	/**
-	 * Recreates the proxy target with a set of interfaces
-	 * @param interfaces The interfaces
-	 */
-	protected void bindProxy(final Class<?>... interfaces) {
-		proxyTarget = createProxyInstance();
 	}
 
 	@Override

@@ -72,38 +72,55 @@ public class CoreProxyFactory implements ProxyFactory {
 			ProxyStub stub = m.getAnnotation(ProxyStub.class);
 			if (stub == null) {
 				continue;
-			}			
-			boolean match = false;
-			for (Method m2 : targetType.getMethods()) {
-				if (m2.getName().equals(m.getName()) && Arrays.equals(m.getParameterTypes(), m2.getParameterTypes()) && m.getReturnType().equals(m2.getReturnType())) {
-					
-					if (!Modifier.isPublic(m2.getModifiers())) {
-						throw new NoSuchMethodError(String.format("The proxy stub %s.%s() isn't public", proxyType.getSimpleName(), m.getName()));
-					}
-					
-					match = true;
-					break;
-				}
 			}
 			
-			if (!match) {
-				String params = "";
-				Class<?>[] paramTypes = m.getParameterTypes();
-				if (paramTypes.length == 0) {
-					params = "void";
-				} else {
-					for (Class<?> p : paramTypes) {
-						params += p.getSimpleName();
-						params += ", ";
-					}
-					params = params.substring(0, params.length() - 2);
-				}
-				
-				
-				throw new NoSuchMethodError(String.format("The proxy stub %s.%s(%s) doesn't exist in %s", proxyType.getSimpleName(), m.getName(), params, targetType.getName()));
+			if (stub.value() != void.class) {
+				checkMethod(m, stub.value());
+				continue;
 			}
+			
+			checkMethod(m, targetType);
 		}
 		
 		proxyMocks.put(targetType, proxyType);
+	}
+	
+	
+	private static void checkMethod(Method method, Class<?> clazz) throws NoSuchMethodError {
+		if (!checkMethodExists(method, clazz)) {
+			errorWrongParams(method, clazz);
+		}
+		checkMethodPublic(method, clazz);
+	}
+	
+	private static boolean checkMethodExists(Method method, Class<?> clazz) {
+		for (Method m : clazz.getMethods()) {
+			if (m.getName().equals(method.getName()) && Arrays.equals(method.getParameterTypes(), m.getParameterTypes()) && method.getReturnType().equals(m.getReturnType())) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private static void checkMethodPublic(Method method, Class<?> clazz) throws NoSuchMethodError {
+		if (!Modifier.isPublic(method.getModifiers())) {
+			throw new NoSuchMethodError(String.format("The proxy stub %s.%s() isn't public", clazz.getSimpleName(), method.getName()));
+		}
+	}
+	
+	private static void errorWrongParams(Method method, Class<?> clazz) throws NoSuchMethodError {
+		String params = "";
+		Class<?>[] paramTypes = method.getParameterTypes();
+		if (paramTypes.length == 0) {
+			params = "void";
+		} else {
+			for (Class<?> p : paramTypes) {
+				params += p.getSimpleName();
+				params += ", ";
+			}
+			params = params.substring(0, params.length() - 2);
+		}
+		
+		throw new NoSuchMethodError(String.format("The proxy stub %s.%s(%s) doesn't exist in %s", clazz.getSimpleName(), method.getName(), params, clazz.getName()));
 	}
 }
