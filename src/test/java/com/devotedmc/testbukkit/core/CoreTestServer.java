@@ -775,4 +775,10 @@ class CoreTestServer extends ProxyMockBase<TestServer> {
 	public String toString() {
 		return "CoreTestServer - " + getVersion();
 	}
+
+	@ProxyStub
+	public void reset() {
+		onlinePlayers.clear();
+		offlinePlayers.clear();
+	}
 }

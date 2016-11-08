@@ -108,8 +108,8 @@ final class CoreDamageLogger extends ExilePearlTask implements DamageLogger {
 			pearlApi.log("Started tracking damage for player %s:{%s}", pearlApi.getRealPlayerName(playerId), playerId.toString());
 		}
 
-		pearlApi.log("%s dealt %.1f damage to %s", pearlApi.getRealPlayerName(damager.getUniqueId()), amount, pearlApi.getRealPlayerName(playerId));
 		rec.recordDamage(damager, amount, maxDamage);
+		pearlApi.log("%s dealt %.1f damage to %s", pearlApi.getRealPlayerName(damager.getUniqueId()), amount, pearlApi.getRealPlayerName(playerId));
 	}
 	
 	@Override

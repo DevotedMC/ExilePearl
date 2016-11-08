@@ -57,6 +57,7 @@ public class CoreDamageLoggerTest {
 
 	@Before
 	public void setUp() throws Exception {
+		getServer().reset();
 		clock = mock(Clock.class);
 		when(clock.getCurrentTime()).thenReturn(100L);
 
@@ -74,10 +75,10 @@ public class CoreDamageLoggerTest {
 		dut = new CoreDamageLogger(pearlApi);
 		dut.loadConfig(config);
 		
-		player.connect();
-		d1.connect();
-		d2.connect();
-		d3.connect();
+		assertTrue(player.connect());
+		assertTrue(d1.connect());
+		assertTrue(d2.connect());
+		assertTrue(d3.connect());
 	}
 	
 	@Test
@@ -197,14 +198,14 @@ public class CoreDamageLoggerTest {
 		assertEquals(d1, damagers.get(2));
 		
 		// Offline players are ignored
-		when(d2.isOnline()).thenReturn(false);
+		d2.disconnect();
 		damagers = dut.getSortedDamagers(player);
 		assertEquals(2, damagers.size());
 		assertEquals(d3, damagers.get(0));
 		assertEquals(d1, damagers.get(1));
 		
 		// The damager still exists when he comes back online
-		when(d2.isOnline()).thenReturn(true);
+		d2.connect();
 		damagers = dut.getSortedDamagers(player);
 		assertEquals(3, damagers.size());
 		assertEquals(d2, damagers.get(0));

@@ -69,4 +69,6 @@ public interface TestServer extends Server, ServerProxy {
 	 * @param args The message arguments
 	 */
 	void log(String msg, Object... args);
+	
+	void reset();
 }

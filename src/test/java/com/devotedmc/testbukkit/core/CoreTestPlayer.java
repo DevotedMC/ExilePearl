@@ -6,6 +6,7 @@ import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.bukkit.Location;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
@@ -13,10 +14,10 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.PlayerInventory;
 
 import com.devotedmc.testbukkit.TestBukkit;
+import com.devotedmc.testbukkit.TestInventory;
 import com.devotedmc.testbukkit.TestPlayer;
 import com.devotedmc.testbukkit.TestServer;
 import com.devotedmc.testbukkit.annotation.ProxyTarget;
@@ -39,7 +40,7 @@ class CoreTestPlayer extends ProxyMockBase<TestPlayer> {
 		this.player = getProxy();
 		location = getServer().getWorld("world").getSpawnLocation();
 		messages = new LinkedBlockingQueue<String>();
-		inventory = (PlayerInventory)createInstance(Inventory.class, player, InventoryType.PLAYER);
+		inventory = (PlayerInventory)createInstance(TestInventory.class, player, InventoryType.PLAYER, PlayerInventory.class);
 	}
 
 	@ProxyStub
@@ -145,4 +146,30 @@ class CoreTestPlayer extends ProxyMockBase<TestPlayer> {
     public PlayerInventory getInventory() {
     	return inventory;
     }
+	
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null) {
+			return false;
+		}
+
+		o = getEqualsProxy(o);
+
+		if (getClass() != o.getClass()) {
+			return false;
+		}
+
+		CoreTestPlayer other = (CoreTestPlayer) o;
+
+		return new EqualsBuilder()
+				.append(name, other.name)
+				.append(uid, other.uid)
+				.append(inventory, other.inventory)
+				.append(messages, other.messages)
+				.append(location, other.location)
+				.isEquals();
+	}
 }
