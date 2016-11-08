@@ -107,7 +107,12 @@
 			<groupId>net.minelink</groupId>
 			<artifactId>CombatTagPlus</artifactId>
 			<version>1.2.4-SNAPSHOT</version>
-			<scope>provided</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.mcstats.bukkit</groupId>
+					<artifactId>metrics-lite</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -134,12 +139,6 @@
 			<version>5.1.37</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>it.unimi.dsi</groupId>
-			<artifactId>fastutil</artifactId>
-			<version>7.0.13</version>
-			<scope>test</scope>
-		</dependency>
 	</dependencies>
 
 	<repositories>
@@ -157,7 +156,7 @@
 		</repository>
 		<repository>
 			<id>central</id>
-			<url>	http://central.maven.org/maven2/</url>
+			<url>http://central.maven.org/maven2/</url>
 		</repository>
 	</repositories>
 
