@@ -112,6 +112,11 @@ class CoreTestPlayer extends ProxyMockBase<TestPlayer> {
     	getServer().getLogger().log(Level.INFO, String.format("Running player command '%s'", commandLine));
     	return getServer().dispatchCommand(player, commandLine);
     }
+	
+	@ProxyStub
+    public boolean runCommand(String commandLine, Object... args) {
+    	return runCommand(String.format(commandLine, args));
+    }
 
 	@ProxyStub
     public void sendMessage(String message) {

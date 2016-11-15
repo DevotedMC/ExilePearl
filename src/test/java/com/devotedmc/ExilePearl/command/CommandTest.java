@@ -54,6 +54,7 @@ public class CommandTest {
 	@Before
 	public void setUp() throws Exception {
 		server = getServer();
+		server.reset();
 		server.addProxyHandler(Player.class, this);
 		
 		player1 = createPlayer("Player1");
@@ -184,13 +185,22 @@ public class CommandTest {
 	}
 	
 	@Test
-	public void testFreeAny() throws Exception {		
+	public void testFreeAny() throws Exception {
+		testParamArgs("ep freeany");
+		
 		runCommand("ep freeany %s", player2.getUniqueId());
 		verify(pearlApi).freePearl(pearl, PearlFreeReason.FREED_BY_ADMIN);
-		
-		testParamArgs("ep freeany");
 	}
+
 	
+	@Test
+	public void testBroadcast() throws Exception {
+		//testParamArgs("ep broadcast");
+		player2.connect();
+		
+		runCommand(player2, "ep broadcast %s", player1.getName());
+		verify(pearlManager).addBroadcastRequest(player1, pearl);
+	}
 	
 	
 	
@@ -259,7 +269,7 @@ public class CommandTest {
         try {
         	player1.getMessages().clear();
         	//System.out.print("Running command: " + commandLine + "\n");
-            return onCommand(player1, args[0], Arrays.copyOfRange(args, 1, args.length));
+            return onCommand(sender, args[0], Arrays.copyOfRange(args, 1, args.length));
         } catch(Exception ex) {
         	ex.printStackTrace();
         	throw new Exception("Failed command: " + commandLine, ex);

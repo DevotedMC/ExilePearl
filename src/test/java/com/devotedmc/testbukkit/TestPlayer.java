@@ -26,6 +26,14 @@ public interface TestPlayer extends Player {
 	boolean runCommand(String commandLine);
 	
 	/**
+	 * Runs a command from the player
+	 * @param commandLine The command
+	 * @param args The command args
+	 * @return true if the command was executed
+	 */
+	boolean runCommand(String commandLine, Object... args);
+	
+	/**
 	 * Gets the messages sent to the player
 	 * @return The message queue
 	 */
