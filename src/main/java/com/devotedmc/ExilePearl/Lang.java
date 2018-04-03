@@ -1,6 +1,6 @@
 package com.devotedmc.ExilePearl;
 
-public class Lang 
+public class Lang
 {
 	public static final String pearlCantHold = "<b>Exiled players can't pick up exile pearls.";
 	public static final String pearlMotd2 = "<i>Type \"<c>/pp locate<i>\" to locate your pearl.";
@@ -31,13 +31,13 @@ public class Lang
 	public static final String pearlSummoned = "<g>You have summoned <c>%s<g>!";
 	public static final String pearlCantReturn = "<i>That pearl can't be returned.";
 	public static final String pearlReturned = "<g>You have returned <c>%s<g>!";
-	
+
 	public static final String groupUnknown = "<i>That group doesn't exist.";
 	public static final String groupNoChatPermission = "<i>You don't have permission to chat in that group.";
 	public static final String groupStoppedBcasting = "<g>You've stopped broadcasting your pearl location to group <c>%s";
 	public static final String groupNowBcasting = "<g>You're now broadcasting your pearl location to group <c>%s";
-	public static final String groupPearlBroadcast = "<gray>[%s]<i>The pearl of <c>%s <i>is held by <a>%s <n>[%d %d %d %s]";
-	
+	public static final String groupPearlBroadcast = "<gray>[%s] <i>The pearl of <c>%s <i>is held by <a>%s <n>[%d %d %d %s]";
+
 	public static final String permForbidden = "<b>You don't have permission to %s.";
 	public static final String permDoThat = "do that";
 	public static final String commandSenderMustBePlayer = "<b>This command can only be used by ingame players.";
@@ -50,5 +50,5 @@ public class Lang
 	public static final String onlyExiledPlayers = "<i>Only exiled players can do that.";
 	public static final String suicideInSeconds = "<n>You will suicide in %d seconds.";
 	public static final String suicideCancelled = "<i>Your suicide has been cancelled because you moved.";
-	
+
 }
