@@ -578,7 +578,10 @@ public class PlayerListener implements Listener, Configurable {
 		}
 		
 		if (killer != null) {
-			
+			//Reset bed of exiled player if killer is not null
+			if (pearlApi.getPearlConfig().canPerform(ExileRule.SPAWN_RESET)) {
+				pearl.getPlayer().setBedSpawnLocation(null,true);
+			}
 			// Notify other damagers if they were not awarded the pearl
 			for(Player damager : damagers) {
 				if (damager != killer) {
