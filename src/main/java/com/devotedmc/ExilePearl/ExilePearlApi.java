@@ -78,6 +78,12 @@ public interface ExilePearlApi extends Plugin, PearlAccess, PearlLogger, PlayerP
 	NpcIdentity getPlayerAsTaggedNpc(Player player);
 
 	/**
+	 * Gets whether Artemis hooks are enabled
+	 * @return True if it is enabled
+	 */
+	boolean isArtemisEnabled();
+	
+	/**
 	 * Gets whether NameLayer hooks are enabled
 	 * @return True if it is enabled
 	 */

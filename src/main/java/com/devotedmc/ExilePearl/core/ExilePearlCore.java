@@ -18,6 +18,7 @@ import com.devotedmc.ExilePearl.command.CmdSuicide;
 import com.devotedmc.ExilePearl.command.PearlCommand;
 import com.devotedmc.ExilePearl.config.PearlConfig;
 import com.devotedmc.ExilePearl.holder.PearlHolder;
+import com.devotedmc.ExilePearl.listener.ArtemisListener;
 import com.devotedmc.ExilePearl.listener.BanStickListener;
 import com.devotedmc.ExilePearl.listener.BastionListener;
 import com.devotedmc.ExilePearl.listener.CitadelListener;
@@ -97,6 +98,7 @@ final class ExilePearlCore implements ExilePearlApi {
 	private final DamageLogger damageLogger;
 	private BrewHandler brewHandler;
 
+	private final ArtemisListener artemisListener;
 	private final PlayerListener playerListener;
 	private final ExileListener exileListener;
 	private final CitadelListener citadelListener;
@@ -131,6 +133,7 @@ final class ExilePearlCore implements ExilePearlApi {
 		suicideHandler = pearlFactory.createSuicideHandler();
 		damageLogger = pearlFactory.createDamageLogger();
 
+		artemisListener = new ArtemisListener(this);
 		playerListener = new PlayerListener(this);
 		exileListener = new ExileListener(this);
 		citadelListener = new CitadelListener(this);
@@ -192,6 +195,11 @@ final class ExilePearlCore implements ExilePearlApi {
 			this.getServer().getPluginManager().registerEvents(citadelListener, this);
 		} else {
 			logIgnoringHooks("Citadel");
+		}
+		if (isArtemisEnabled()) {
+			this.getServer().getPluginManager().registerEvents(artemisListener, this);
+		} else {
+			logIgnoringHooks("Artemis");
 		}
 		nameLayerPermissionsManager = new NameLayerPermissions(NameLayerPlugin.getInstance().getGroupTracker().getPermissionTracker());
 
@@ -463,6 +471,11 @@ final class ExilePearlCore implements ExilePearlApi {
 		return null;
 	}
 
+	@Override
+	public boolean isArtemisEnabled() {
+		return Bukkit.getPluginManager().isPluginEnabled("Artemis");
+	}
+	
 	@Override
 	public boolean isNameLayerEnabled() {
 		return Bukkit.getPluginManager().isPluginEnabled("NameLayer");

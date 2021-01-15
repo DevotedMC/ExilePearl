@@ -58,7 +58,7 @@ public abstract class PearlCommand extends BaseCommand<ExilePearlApi> {
 			break;
 
 		case "group":
-			NameLayerTabCompletion.completeGroupName(pattern, player());
+			tabList.addAll(NameLayerTabCompletion.completeGroupName(pattern, player()));
 			break;
 
 		case "group_or_player":
