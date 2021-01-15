@@ -6,12 +6,12 @@ import org.bukkit.event.EventPriority;
 import com.devotedmc.ExilePearl.ExilePearlApi;
 import com.devotedmc.ExilePearl.ExileRule;
 
-import vg.civcraft.mc.civchat2.event.GlobalChatEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 
-public class CivChatListener extends RuleListener {
+public class ChatListener extends RuleListener {
 
 
-	public CivChatListener(ExilePearlApi pearlApi) {
+	public ChatListener(ExilePearlApi pearlApi) {
 		super(pearlApi);
 	}
 
@@ -20,7 +20,7 @@ public class CivChatListener extends RuleListener {
 	 * @param e The event
 	 */
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-	public void onChatEvent(GlobalChatEvent e) {
+	public void onChatEvent(AsyncPlayerChatEvent e) {
 		checkAndCancelRule(ExileRule.CHAT, e, e.getPlayer());
 	}
 }

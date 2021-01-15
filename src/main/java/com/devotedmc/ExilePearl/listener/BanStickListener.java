@@ -3,7 +3,6 @@ package com.devotedmc.ExilePearl.listener;
 import com.devotedmc.ExilePearl.ExilePearl;
 import com.devotedmc.ExilePearl.ExilePearlApi;
 import com.devotedmc.ExilePearl.event.PlayerPearledEvent;
-import com.programmerdan.minecraft.banstick.data.BSPlayer;
 import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -46,7 +45,7 @@ public class BanStickListener extends RuleListener {
         if (pearlApi.getExiledAlts(uuid, false) < config.maxAltsPearled()) {
             return;
         }
-        BSPlayer player = BSPlayer.byUUID(uuid);
+/*        BSPlayer player = BSPlayer.byUUID(uuid);
         for (BSPlayer alt : player.getTransitiveSharedPlayers(true)) {
             ExilePearl altPearl = pearlApi.getPearl(alt.getUUID());
             if (altPearl == null && !alt.getUUID().equals(uuid)) {
@@ -55,7 +54,7 @@ public class BanStickListener extends RuleListener {
                     p.kickPlayer(config.altBanMessage());
                 }
             }
-        }
+        }*/
     }
 
 }

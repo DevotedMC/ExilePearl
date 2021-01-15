@@ -2,7 +2,7 @@ name: ${name}
 version: ${version}
 main: ${groupId}.${name}.${name}Plugin
 depend: [CivModCore]
-softdepend: [NameLayer, Citadel, Bastion, CivChat2, JukeAlert, CombatTagPlus, RandomSpawn, WorldBorder, MythicMobs, Brewery, BanStick]
+softdepend: [NameLayer, Citadel, Bastion, JukeAlert, CombatTagPlus, WorldBorder, MythicMobs, Brewery, BanRod]
 commands:
   ep:
   suicide:

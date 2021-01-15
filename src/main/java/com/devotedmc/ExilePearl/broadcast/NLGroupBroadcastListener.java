@@ -12,10 +12,10 @@ import com.devotedmc.ExilePearl.Lang;
 
 import vg.civcraft.mc.civmodcore.util.Guard;
 import vg.civcraft.mc.civmodcore.util.TextUtil;
-import vg.civcraft.mc.namelayer.GroupManager;
-import vg.civcraft.mc.namelayer.NameAPI;
-import vg.civcraft.mc.namelayer.group.Group;
-import vg.civcraft.mc.namelayer.permission.PermissionType;
+import vg.civcraft.mc.namelayer.core.Group;
+import vg.civcraft.mc.namelayer.core.PermissionType;
+import vg.civcraft.mc.namelayer.mc.GroupAPI;
+import vg.civcraft.mc.namelayer.mc.NameLayerPlugin;
 
 public class NLGroupBroadcastListener implements BroadcastListener {
 
@@ -34,13 +34,12 @@ public class NLGroupBroadcastListener implements BroadcastListener {
 
 		String msg = TextUtil.parse(Lang.groupPearlBroadcast, group.getName(), pearl.getPlayerName(), name, l.getBlockX(), l.getBlockY(), l.getBlockZ(), l.getWorld().getName());
 
-		GroupManager gm = NameAPI.getGroupManager();
-
-		if (!gm.hasAccess(group, pearl.getPlayerId(), PermissionType.getPermission(NameLayerPermissions.ALLOW_EXILE_BROADCAST))) return;
-
-		for (UUID uid : group.getCurrentMembers()) {
+		if (!GroupAPI.hasPermission(pearl.getPlayerId(), group, NameLayerPlugin.getInstance().getGroupTracker().getPermissionTracker().getPermission(NameLayerPermissions.ALLOW_EXILE_BROADCAST))) return;
+		
+		PermissionType perm = NameLayerPlugin.getInstance().getGroupTracker().getPermissionTracker().getPermission("READ_CHAT");
+		for (UUID uid : group.getAllMembers()) {
 			Player p = Bukkit.getPlayer(uid);
-			if (p != null && p.isOnline()) {
+			if (p != null && p.isOnline() && GroupAPI.hasPermission(p, group, perm)) {
 				p.sendMessage(msg);
 			}
 		}
