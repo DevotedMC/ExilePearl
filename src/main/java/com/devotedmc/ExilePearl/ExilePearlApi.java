@@ -4,6 +4,7 @@ import com.devotedmc.ExilePearl.command.PearlCommand;
 import com.devotedmc.ExilePearl.config.PearlConfig;
 import com.devotedmc.ExilePearl.util.BastionWrapper;
 import com.devotedmc.ExilePearl.util.Clock;
+import com.devotedmc.ExilePearl.util.NameLayerPermissions;
 import java.util.List;
 import java.util.UUID;
 import net.minelink.ctplus.compat.api.NpcIdentity;
@@ -163,4 +164,11 @@ public interface ExilePearlApi extends Plugin, PearlAccess, PearlLogger, PlayerP
 	 * @return a Brew Handler appropriate for the server.
 	 */
 	BrewHandler getBrewHandler();
+
+	/**
+	 * Gets NameLayer PermissionTracker
+	 *
+	 * @return NameLayerPermissions class
+	 */
+	NameLayerPermissions getNameLayerPermissions();
 }

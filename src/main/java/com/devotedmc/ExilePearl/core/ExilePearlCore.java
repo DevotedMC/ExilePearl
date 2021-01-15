@@ -21,7 +21,7 @@ import com.devotedmc.ExilePearl.holder.PearlHolder;
 import com.devotedmc.ExilePearl.listener.BanStickListener;
 import com.devotedmc.ExilePearl.listener.BastionListener;
 import com.devotedmc.ExilePearl.listener.CitadelListener;
-import com.devotedmc.ExilePearl.listener.CivChatListener;
+import com.devotedmc.ExilePearl.listener.ChatListener;
 import com.devotedmc.ExilePearl.listener.ExileListener;
 import com.devotedmc.ExilePearl.listener.JukeAlertListener;
 import com.devotedmc.ExilePearl.listener.PlayerListener;
@@ -33,6 +33,7 @@ import com.devotedmc.ExilePearl.util.BastionWrapper;
 import com.devotedmc.ExilePearl.util.Clock;
 import com.devotedmc.ExilePearl.util.ExilePearlRunnable;
 import com.devotedmc.ExilePearl.util.NameLayerPermissions;
+import com.github.maxopoly.artemis.NameAPI;
 import com.wimbli.WorldBorder.BorderData;
 import com.wimbli.WorldBorder.WorldBorder;
 
@@ -68,12 +69,11 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginLoader;
 import vg.civcraft.mc.civmodcore.util.Guard;
-import vg.civcraft.mc.namelayer.GroupManager;
-import vg.civcraft.mc.namelayer.NameAPI;
-import vg.civcraft.mc.namelayer.permission.PermissionType;
+import vg.civcraft.mc.namelayer.core.PermissionType;
+import vg.civcraft.mc.namelayer.mc.NameLayerPlugin;
 
 /**
- * The implementation class for the ExilPearlApi.
+ * The implementation class for the ExilePearlApi.
  * <p>
  * The reason for putting this in a separate class is two-fold.
  * 1. It forces any development to reference the API instead of the implementation.
@@ -100,12 +100,14 @@ final class ExilePearlCore implements ExilePearlApi {
 	private final PlayerListener playerListener;
 	private final ExileListener exileListener;
 	private final CitadelListener citadelListener;
-	private final CivChatListener chatListener;
+	private final ChatListener chatListener;
 	private final BastionListener bastionListener;
 	private final JukeAlertListener jukeAlertListener;
 	private final RandomSpawnListener randomSpawnListener;
 	private final WorldBorderListener worldBorderListener;
 	private final BanStickListener banStickListener;
+
+	private NameLayerPermissions nameLayerPermissionsManager;
 
 	private final HashSet<BaseCommand<?>> commands;
 	private final CmdAutoHelp autoHelp;
@@ -132,7 +134,7 @@ final class ExilePearlCore implements ExilePearlApi {
 		playerListener = new PlayerListener(this);
 		exileListener = new ExileListener(this);
 		citadelListener = new CitadelListener(this);
-		chatListener = new CivChatListener(this);
+		chatListener = new ChatListener(this);
 		bastionListener = new BastionListener(this);
 		jukeAlertListener = new JukeAlertListener(this);
 		randomSpawnListener = new RandomSpawnListener(this);
@@ -191,17 +193,10 @@ final class ExilePearlCore implements ExilePearlApi {
 		} else {
 			logIgnoringHooks("Citadel");
 		}
-		if (isCivChatEnabled()) {
-			this.getServer().getPluginManager().registerEvents(chatListener, this);
-		} else {
-			logIgnoringHooks("CivChat");
-		}
-
-		registerExileBroadcastPermissions();
+		nameLayerPermissionsManager = new NameLayerPermissions(NameLayerPlugin.getInstance().getGroupTracker().getPermissionTracker());
 
 		if (isBastionEnabled()) {
 			this.getServer().getPluginManager().registerEvents(bastionListener, this);
-			registerBastionPermissions();
 		} else {
 			logIgnoringHooks("Bastion");
 		}
@@ -243,31 +238,6 @@ final class ExilePearlCore implements ExilePearlApi {
 
 		log("=== ENABLE DONE (Took "+(System.currentTimeMillis() - timeEnableStart)+"ms) ===");
 	}
-
-	private void registerBastionPermissions() {
-		if(!this.getServer().getPluginManager().isPluginEnabled("NameLayer")) return;
-
-		LinkedList<GroupManager.PlayerType> memberAndAbove = new LinkedList<>();
-		memberAndAbove.add(GroupManager.PlayerType.MEMBERS);
-		memberAndAbove.add(GroupManager.PlayerType.MODS);
-		memberAndAbove.add(GroupManager.PlayerType.ADMINS);
-		memberAndAbove.add(GroupManager.PlayerType.OWNER);
-
-		PermissionType.registerPermission(NameLayerPermissions.BASTION_ALLOW_EXILED, memberAndAbove);
-	}
-
-	private void registerExileBroadcastPermissions() {
-		if (!this.getServer().getPluginManager().isPluginEnabled("NameLayer")) return;
-
-		LinkedList<GroupManager.PlayerType> memberAndAbove = new LinkedList<>();
-		memberAndAbove.add(GroupManager.PlayerType.MEMBERS);
-		memberAndAbove.add(GroupManager.PlayerType.MODS);
-		memberAndAbove.add(GroupManager.PlayerType.ADMINS);
-		memberAndAbove.add(GroupManager.PlayerType.OWNER);
-
-		PermissionType.registerPermission(NameLayerPermissions.ALLOW_EXILE_BROADCAST, memberAndAbove);
-	}
-
 
 	/**
 	 * Spigot disable method
@@ -470,7 +440,7 @@ final class ExilePearlCore implements ExilePearlApi {
 	@Override
 	public String getRealPlayerName(UUID uid) {
 		if (isNameLayerEnabled()) {
-			return NameAPI.getCurrentName(uid);
+			return NameAPI.getName(uid);
 		}
 		OfflinePlayer player = Bukkit.getOfflinePlayer(uid);
 		if (player == null) {
@@ -660,7 +630,7 @@ final class ExilePearlCore implements ExilePearlApi {
 			final BastionBlockManager manager = Bastion.getBastionManager();
 
 			Set<BastionBlock> bastions = manager.getBlockingBastions(player.getLocation());
-			PermissionType perm = PermissionType.getPermission(NameLayerPermissions.BASTION_ALLOW_EXILED);
+			PermissionType perm = nameLayerPermissionsManager.getBastionsAllowExiles();
 
 			for (BastionBlock bastion : bastions) {
 				if (!bastion.permAccess(player, perm)) {
@@ -695,7 +665,7 @@ final class ExilePearlCore implements ExilePearlApi {
 
 			Set<BastionBlock> bastions = manager.getBlockingBastions(player.getLocation());
 			List<BastionWrapper> wrapper = new LinkedList<>();
-			PermissionType perm = PermissionType.getPermission(NameLayerPermissions.BASTION_ALLOW_EXILED);
+			PermissionType perm = nameLayerPermissionsManager.getBastionsAllowExiles();
 
 			for (BastionBlock bastion : bastions) {
 				if (!bastion.permAccess(player, perm)) {
@@ -723,5 +693,10 @@ final class ExilePearlCore implements ExilePearlApi {
 	@Override
 	public int getExiledAlts(UUID player, boolean includeSelf) {
 		return pearlManager.getExiledAlts(player, includeSelf);
+	}
+
+	@Override
+	public NameLayerPermissions getNameLayerPermissions() {
+		return nameLayerPermissionsManager;
 	}
 }

@@ -8,9 +8,8 @@ import java.util.UUID;
 import com.devotedmc.ExilePearl.ExilePearl;
 import com.devotedmc.ExilePearl.ExilePearlApi;
 import com.devotedmc.ExilePearl.ExileRule;
+import vg.civcraft.mc.namelayer.mc.commands.NameLayerTabCompletion;
 
-import vg.civcraft.mc.namelayer.GroupManager;
-import vg.civcraft.mc.namelayer.NameAPI;
 
 public abstract class PearlCommand extends BaseCommand<ExilePearlApi> {
 
@@ -59,12 +58,7 @@ public abstract class PearlCommand extends BaseCommand<ExilePearlApi> {
 			break;
 
 		case "group":
-			GroupManager gm = NameAPI.getGroupManager();
-			for(String group : gm.getAllGroupNames(player().getUniqueId())) {
-				if(group.toLowerCase().startsWith(pattern.toLowerCase())) {
-					tabList.add(group);
-				}
-			}
+			NameLayerTabCompletion.completeGroupName(pattern, player());
 			break;
 
 		case "group_or_player":

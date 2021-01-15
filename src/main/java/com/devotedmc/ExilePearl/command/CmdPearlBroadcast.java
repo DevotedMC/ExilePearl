@@ -7,11 +7,11 @@ import com.devotedmc.ExilePearl.ExilePearl;
 import com.devotedmc.ExilePearl.ExilePearlApi;
 import com.devotedmc.ExilePearl.Lang;
 import com.devotedmc.ExilePearl.broadcast.NLGroupBroadcastListener;
+import vg.civcraft.mc.namelayer.core.Group;
+import vg.civcraft.mc.namelayer.core.PermissionType;
+import vg.civcraft.mc.namelayer.mc.GroupAPI;
+import vg.civcraft.mc.namelayer.mc.NameLayerPlugin;
 
-import vg.civcraft.mc.namelayer.GroupManager;
-import vg.civcraft.mc.namelayer.NameAPI;
-import vg.civcraft.mc.namelayer.group.Group;
-import vg.civcraft.mc.namelayer.permission.PermissionType;
 
 public class CmdPearlBroadcast extends PearlCommand {
 
@@ -41,14 +41,13 @@ public class CmdPearlBroadcast extends PearlCommand {
 
 		// First check for a group
 		if (plugin.isNameLayerEnabled()) {
-			GroupManager gm = NameAPI.getGroupManager();
 			// First look for a matching group
-			Group g = GroupManager.getGroup(argAsString(0));
-
+			Group g = GroupAPI.getGroup(argAsString(0));
 			if (g != null) {
-				if (!gm.hasAccess(g, player().getUniqueId(), PermissionType.getPermission("WRITE_CHAT"))) {
+
+				if (!GroupAPI.hasPermission(player(), g, NameLayerPlugin.getInstance().getGroupTracker().getPermissionTracker().getPermission("WRITE_CHAT"))) {
 					msg(Lang.groupNoChatPermission);
-				}else if (!gm.hasAccess(g, player().getUniqueId(), PermissionType.getPermission(NameLayerPermissions.ALLOW_EXILE_BROADCAST))){
+				}else if (!GroupAPI.hasPermission(player(), g, plugin.getNameLayerPermissions().getExilesCanBroadcast())){
 					msg(Lang.groupNoExileBroadcastPermission);
 				}else{
 					//If they are already broadcasting to group then remove the listener for that group

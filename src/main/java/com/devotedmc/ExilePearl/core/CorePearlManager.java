@@ -40,7 +40,6 @@ import com.devotedmc.ExilePearl.holder.BlockHolder;
 import com.devotedmc.ExilePearl.holder.PearlHolder;
 import com.devotedmc.ExilePearl.holder.PlayerHolder;
 import com.devotedmc.ExilePearl.util.SpawnUtil;
-import com.programmerdan.minecraft.banstick.data.BSPlayer;
 
 import vg.civcraft.mc.civmodcore.util.Guard;
 import vg.civcraft.mc.civmodcore.util.cooldowns.ICoolDownHandler;
@@ -64,8 +63,8 @@ final class CorePearlManager implements PearlManager {
 
 	/**
 	 * Creates a new PearlManager instance
-	 * @param logger The logging instance
-	 * @param factory The pearl factory
+	 * @param pearlApi The logging instance
+	 * @param pearlFactory The pearl factory
 	 * @param storage The database storage provider
 	 */
 	public CorePearlManager(final ExilePearlApi pearlApi, final PearlFactory pearlFactory, final StorageProvider storage) {
@@ -469,7 +468,7 @@ final class CorePearlManager implements PearlManager {
 
 	@Override
 	public int getExiledAlts(UUID uuidPlayer, boolean includeSelf) {
-		if (pearlApi.isBanStickEnabled()) {
+/*		if (pearlApi.isBanStickEnabled()) {
 			BSPlayer bsPlayer = BSPlayer.byUUID(uuidPlayer);
 	        if (bsPlayer == null) {
 	            if (includeSelf && isPlayerExiled(uuidPlayer)) {
@@ -490,7 +489,7 @@ final class CorePearlManager implements PearlManager {
 		}
         if (includeSelf && isPlayerExiled(uuidPlayer)) {
         	return 1;
-        }
+        }*/
         return 0;
 	}
 }

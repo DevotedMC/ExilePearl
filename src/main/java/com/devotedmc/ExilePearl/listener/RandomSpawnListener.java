@@ -7,7 +7,6 @@ import org.bukkit.event.EventPriority;
 import com.devotedmc.ExilePearl.ExilePearl;
 import com.devotedmc.ExilePearl.ExilePearlApi;
 
-import me.josvth.randomspawn.events.NewPlayerSpawn;
 
 public class RandomSpawnListener extends RuleListener {
 
@@ -21,7 +20,7 @@ public class RandomSpawnListener extends RuleListener {
 	 * Prevents exiled players from random-spawning within their pearl radius
 	 * @param e The event args
 	 */
-	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+/*	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onRandomSpawn(NewPlayerSpawn e) {
 		int radius = config.getRulePearlRadius();
 		if (radius <= 0) {
@@ -45,5 +44,5 @@ public class RandomSpawnListener extends RuleListener {
 		if (distance < radius) {
 			e.setCancelled(true);
 		}
-	}
+	}*/
 }
