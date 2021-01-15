@@ -40,7 +40,7 @@ public class Lang
 	public static final String groupNoExileBroadcastPermission = "<i>You don't have permission to broadcast in that group.";
 	public static final String groupStoppedBcasting = "<g>You've stopped broadcasting your pearl location to group <c>%s";
 	public static final String groupNowBcasting = "<g>You're now broadcasting your pearl location to group <c>%s";
-	public static final String groupPearlBroadcast = "<gray>[%s]<i>The pearl of <c>%s <i>is held by <a>%s <n>[%d %d %d %s]";
+	public static final String groupPearlBroadcast = "<gray>[%s] <i>The pearl of <c>%s <i>is held by <a>%s <n>[%d %d %d %s]";
 
 	public static final String permForbidden = "<b>You don't have permission to %s.";
 	public static final String permDoThat = "do that";
