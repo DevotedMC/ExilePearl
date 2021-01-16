@@ -262,7 +262,6 @@ public class PlayerListener implements Listener, Configurable {
 			inv.clear(slot);
 			world.dropItemNaturally(loc, item);
 		}
-		imprisoner.saveData();
 	}
 
 
