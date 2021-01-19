@@ -448,7 +448,7 @@ final class ExilePearlCore implements ExilePearlApi {
 	@Override
 	public String getRealPlayerName(UUID uid) {
 		if (isNameLayerEnabled()) {
-			return NameAPI.getName(uid);
+			return NameAPI.getNameLocal(uid);
 		}
 		OfflinePlayer player = Bukkit.getOfflinePlayer(uid);
 		if (player == null) {
@@ -461,9 +461,6 @@ final class ExilePearlCore implements ExilePearlApi {
 	@SuppressWarnings("deprecation")
 	@Override
 	public UUID getUniqueId(String name) {
-		if (isNameLayerEnabled()) {
-			return NameAPI.getUUID(name);
-		}
 		OfflinePlayer offline = Bukkit.getOfflinePlayer(name);
 		if (offline != null)  {
 			return offline.getUniqueId();
