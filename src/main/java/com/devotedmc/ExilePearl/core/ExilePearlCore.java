@@ -484,11 +484,6 @@ final class ExilePearlCore implements ExilePearlApi {
 	}
 
 	@Override
-	public boolean isCivChatEnabled() {
-		return Bukkit.getPluginManager().isPluginEnabled("CivChat2");
-	}
-
-	@Override
 	public boolean isBastionEnabled() {
 		return Bukkit.getPluginManager().isPluginEnabled("Bastion");
 	}

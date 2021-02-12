@@ -96,12 +96,6 @@ public interface ExilePearlApi extends Plugin, PearlAccess, PearlLogger, PlayerP
 	boolean isCitadelEnabled();
 
 	/**
-	 * Gets whether CivChat hooks are enabled
-	 * @return True if it is enabled
-	 */
-	boolean isCivChatEnabled();
-
-	/**
 	 * Gets whether Bastion hooks are enabled
 	 * @return True if it is enabled
 	 */
