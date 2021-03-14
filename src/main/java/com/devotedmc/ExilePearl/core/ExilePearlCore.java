@@ -21,8 +21,8 @@ import com.devotedmc.ExilePearl.holder.PearlHolder;
 import com.devotedmc.ExilePearl.listener.ArtemisListener;
 import com.devotedmc.ExilePearl.listener.BanStickListener;
 import com.devotedmc.ExilePearl.listener.BastionListener;
-import com.devotedmc.ExilePearl.listener.CitadelListener;
 import com.devotedmc.ExilePearl.listener.ChatListener;
+import com.devotedmc.ExilePearl.listener.CitadelListener;
 import com.devotedmc.ExilePearl.listener.ExileListener;
 import com.devotedmc.ExilePearl.listener.JukeAlertListener;
 import com.devotedmc.ExilePearl.listener.PlayerListener;
@@ -34,11 +34,9 @@ import com.devotedmc.ExilePearl.util.BastionWrapper;
 import com.devotedmc.ExilePearl.util.Clock;
 import com.devotedmc.ExilePearl.util.ExilePearlRunnable;
 import com.devotedmc.ExilePearl.util.NameLayerPermissions;
-import com.github.maxopoly.artemis.ArtemisPlugin;
 import com.github.maxopoly.artemis.NameAPI;
 import com.wimbli.WorldBorder.BorderData;
 import com.wimbli.WorldBorder.WorldBorder;
-
 import isaac.bastion.Bastion;
 import isaac.bastion.BastionBlock;
 import isaac.bastion.manager.BastionBlockManager;
@@ -463,7 +461,7 @@ final class ExilePearlCore implements ExilePearlApi {
 	@Override
 	public UUID getUniqueId(String name) {
 		if (isArtemisEnabled()) {
-			return ArtemisPlugin.getInstance().getPlayerDataManager().getOnlinePlayerData(name).getUUID();
+			return NameAPI.getUUID(name);
 		}
 		OfflinePlayer offline = Bukkit.getOfflinePlayer(name);
 		if (offline != null)  {
