@@ -34,6 +34,7 @@ import com.devotedmc.ExilePearl.util.BastionWrapper;
 import com.devotedmc.ExilePearl.util.Clock;
 import com.devotedmc.ExilePearl.util.ExilePearlRunnable;
 import com.devotedmc.ExilePearl.util.NameLayerPermissions;
+import com.github.maxopoly.artemis.ArtemisPlugin;
 import com.github.maxopoly.artemis.NameAPI;
 import com.wimbli.WorldBorder.BorderData;
 import com.wimbli.WorldBorder.WorldBorder;
@@ -447,7 +448,7 @@ final class ExilePearlCore implements ExilePearlApi {
 
 	@Override
 	public String getRealPlayerName(UUID uid) {
-		if (isNameLayerEnabled()) {
+		if (isArtemisEnabled()) {
 			return NameAPI.getNameLocal(uid);
 		}
 		OfflinePlayer player = Bukkit.getOfflinePlayer(uid);
@@ -461,6 +462,9 @@ final class ExilePearlCore implements ExilePearlApi {
 	@SuppressWarnings("deprecation")
 	@Override
 	public UUID getUniqueId(String name) {
+		if (isArtemisEnabled()) {
+			return ArtemisPlugin.getInstance().getPlayerDataManager().getOnlinePlayerData(name).getUUID();
+		}
 		OfflinePlayer offline = Bukkit.getOfflinePlayer(name);
 		if (offline != null)  {
 			return offline.getUniqueId();
