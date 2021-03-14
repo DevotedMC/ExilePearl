@@ -21,8 +21,8 @@ import com.devotedmc.ExilePearl.holder.PearlHolder;
 import com.devotedmc.ExilePearl.listener.ArtemisListener;
 import com.devotedmc.ExilePearl.listener.BanStickListener;
 import com.devotedmc.ExilePearl.listener.BastionListener;
-import com.devotedmc.ExilePearl.listener.CitadelListener;
 import com.devotedmc.ExilePearl.listener.ChatListener;
+import com.devotedmc.ExilePearl.listener.CitadelListener;
 import com.devotedmc.ExilePearl.listener.ExileListener;
 import com.devotedmc.ExilePearl.listener.JukeAlertListener;
 import com.devotedmc.ExilePearl.listener.PlayerListener;
@@ -37,7 +37,6 @@ import com.devotedmc.ExilePearl.util.NameLayerPermissions;
 import com.github.maxopoly.artemis.NameAPI;
 import com.wimbli.WorldBorder.BorderData;
 import com.wimbli.WorldBorder.WorldBorder;
-
 import isaac.bastion.Bastion;
 import isaac.bastion.BastionBlock;
 import isaac.bastion.manager.BastionBlockManager;
@@ -447,8 +446,8 @@ final class ExilePearlCore implements ExilePearlApi {
 
 	@Override
 	public String getRealPlayerName(UUID uid) {
-		if (isNameLayerEnabled()) {
-			return NameAPI.getName(uid);
+		if (isArtemisEnabled()) {
+			return NameAPI.getNameLocal(uid);
 		}
 		OfflinePlayer player = Bukkit.getOfflinePlayer(uid);
 		if (player == null) {
@@ -461,7 +460,7 @@ final class ExilePearlCore implements ExilePearlApi {
 	@SuppressWarnings("deprecation")
 	@Override
 	public UUID getUniqueId(String name) {
-		if (isNameLayerEnabled()) {
+		if (isArtemisEnabled()) {
 			return NameAPI.getUUID(name);
 		}
 		OfflinePlayer offline = Bukkit.getOfflinePlayer(name);
@@ -484,11 +483,6 @@ final class ExilePearlCore implements ExilePearlApi {
 	@Override
 	public boolean isCitadelEnabled() {
 		return Bukkit.getPluginManager().isPluginEnabled("Citadel");
-	}
-
-	@Override
-	public boolean isCivChatEnabled() {
-		return Bukkit.getPluginManager().isPluginEnabled("CivChat2");
 	}
 
 	@Override
